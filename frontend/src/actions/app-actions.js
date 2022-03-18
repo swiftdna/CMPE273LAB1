@@ -6,7 +6,9 @@ import {
   SET_ALERT,
   CLEAR_ALERT,
   SET_TOAST,
-  CLEAR_TOAST
+  CLEAR_TOAST,
+  SET_CURRENCY,
+  ADD_COUNTRIES
 } from '../constants/actionTypes';
 
 function loginSuccess(data) {
@@ -81,5 +83,22 @@ export function setToast(data) {
 export function clearToast() {
    return {
       type: CLEAR_TOAST
+   }
+}
+
+export function setUserCurrency(data) {
+   return {
+      type: SET_CURRENCY,
+      payload: data
+   }
+}
+
+export function handleCountriesResponse(response) {
+   const {data} = response;
+   if (data.success) {
+      return {
+         type: ADD_COUNTRIES,
+         payload: data.data
+      };
    }
 }
