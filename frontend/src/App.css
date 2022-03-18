@@ -1,0 +1,118 @@
+.center-contents {
+  width: 50%;
+  padding: 0px 20px;
+}
+
+.nav-buttons {
+  font-size: 13px;
+  line-height: 1.4;
+  min-height: 36px;
+  min-width: 36px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.nav-buttons:hover {
+  background-color: #DEDEDE;
+  cursor: pointer;
+}
+
+/*.nav-buttons:not(:first-child) {
+  margin: 0px 10px;
+}*/
+
+.main-frame {
+  margin: 10px 0px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.pull-down {
+  margin-top: 10px;
+}
+
+.button_panel {
+  float: right;
+}
+
+.card-btn {
+  transition: all 0.3s ease 0s;
+}
+
+.card-btn:hover {
+  color: #fff;
+  cursor: pointer;
+  transform: translateY(-2px);
+}
+
+.card-btn:not(:first-child) {
+  margin-left: 10px;
+}
+
+.login-form {
+  left: 65%;
+  top: 35%;
+  margin-left: -25%;
+  position: absolute;
+  /*margin-top: 25%;*/
+}
+
+.login-panel > .btn {
+  float: right;
+  position: absolute;
+  left: 40%;
+  margin-top: 10px;
+}
+
+.product-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.edit_icon {
+  margin-left: 5px;
+  color:  #0070BA;
+  cursor: pointer;
+}
+
+.btn_panel {
+  margin-top: 10px;
+  float: right;
+}
+
+.btn_panel > .btn:not(:first-child) {
+  margin-left: 10px;
+}
+
+.cart-item {
+  text-align: center;
+  margin: 10px 0px;
+}
+
+.cart-item.heading {
+  font-weight: bold;
+}
+
+.page-footer {
+  background-color: #F1F1F1;
+}
+
+.custom_toast {
+  position: absolute;
+  right: 5px;
+  z-index: 10;
+  top: 10px;
+}
+
+.order_item {
+  margin: 10px 0px;
+}
+
+.order_item > .list-group-item > .order_id {
+  float: right;
+}
+
+.order_item_heading {
+  background-color: #fafafa !important;
+}
