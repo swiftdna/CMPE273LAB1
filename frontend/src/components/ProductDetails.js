@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
+import { pluck } from 'underscore';
 // import {FaShoppingCart, FaRegHeart, FaHeart} from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectProductDetails } from '../selectors/productDetailsSelector';
 import { selectCartID, selectCartDetails } from '../selectors/cartSelector';
-import { fetchProductDetails, addItemToCart, updatedItemInCart } from '../utils';
+import { selectFavourites } from '../selectors/favouritesSelector';
+import { fetchProductDetails, addItemToCart, updatedItemInCart, favourite, unfavourite } from '../utils';
 import { Row, Col, Button, InputGroup, Badge } from 'react-bootstrap';
-import { selectCurrency } from '../selectors/appSelector';
+import { selectCurrency, selectUser } from '../selectors/appSelector';
+import { FaRegHeart, FaHeart } from 'react-icons/fa';
 import Image from 'react-bootstrap/Image';
 
 function ProductDetails() {
@@ -15,9 +18,11 @@ function ProductDetails() {
     const urlParams = useParams();
     const dispatch = useDispatch();
     const productDetails = useSelector(selectProductDetails);
+    const favourites = useSelector(selectFavourites);
     const cartDetails = useSelector(selectCartDetails);
     const cartID = useSelector(selectCartID);
     const currency = useSelector(selectCurrency);
+    const userObj = useSelector(selectUser);
     const [selectedQty, setSelectedQty] = useState(1);
 
     const { productID } = urlParams;
@@ -56,6 +61,16 @@ function ProductDetails() {
         }
     };
 
+    const markFav = (id) => {
+        favourite(dispatch, id, userObj);
+    };
+
+    const markUnFav = (id) => {
+        unfavourite(dispatch, id, userObj);
+    };
+
+    const favs = pluck(favourites, 'item_id');
+
     return(
         <div className="container pull-down fill-page">
             <Row>
@@ -67,7 +82,15 @@ function ProductDetails() {
                     {productDetails.shop_details && productDetails.shop_details.name ? <p style={{"margin":"0","marginTop":"-12px","marginBottom":"10px","fontSize":"12px","color":"#808080"}}>
                       {productDetails.shop_details.name}
                     </p> : '' }
-                    <Button variant="danger" style={{display: 'block', marginBottom: '10px'}} onClick={() => console.log('fav inside')}>Favourite</Button>
+                    <div style={{position: 'block', marginBottom: '13px'}}>
+                        {
+                            productDetails.id && favs.indexOf(productDetails.id) !== -1 ?
+                            <FaHeart  className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={() => markUnFav(productDetails.id)} /> :
+                            <FaRegHeart className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={() => markFav(productDetails.id)} />
+                        }
+                    </div>
+
+                    
                     <Button variant="outline-danger" onClick={() => decQty()}>-</Button>
                     <input style={{ display: 'inline', width: '39px', margin: '0px 2px'}} type="text" className="form-control" readOnly value={selectedQty} />
                     <Button variant="outline-success" onClick={() => incQty()}>+</Button>
