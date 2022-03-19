@@ -6,9 +6,18 @@ import {
 } from "react-router-dom";
 import Login from './Login';
 import Navbar from './Navbar';
-// import Footer from './Footer';
+import Footer from './Footer';
 // import Home from './Home';
+import LandingPage from './LandingPage';
+import Profile from './Profile';
+import Register from './Register';
+import Favourites from './Favourites';
+import ProductDetails from './ProductDetails';
+import Purchases from './Purchases';
+import Shop from './Shop';
+import ShopPage from './ShopPage';
 import { useLocation } from 'react-router-dom';
+import Cart from './Cart';
 import { checkSession } from '../utils';
 import ProtectedRoute from './ProtectedRoute';
 import {Toast} from 'react-bootstrap';
@@ -55,8 +64,18 @@ export function Main() {
             </Toast>
             <Routes>
               <Route path="/login" element={<Login />} />
+              {/* <Route path="/home" element={isAuthenticated ? <Home /> : <Login />} /> */}
+              <Route path="/product/:productID" element={<ProductDetails />} />
+              <Route path="/profile" element={isAuthenticated ? <Profile /> : <Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/favourites" element={isAuthenticated ? <Favourites /> : <Login />} />
+              <Route path="/purchases" element={isAuthenticated ? <Purchases /> : <Login />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/shop" element={isAuthenticated ? <Shop /> : <Login />} />
+              <Route path="/shop/:shopID" element={<ShopPage />} />
+              <Route path="/" element={<LandingPage />} />
             </Routes>
-            {/* <Footer /> */}
+            {location.pathname !== '/login' && <Footer />}
         </>
     )
 }
