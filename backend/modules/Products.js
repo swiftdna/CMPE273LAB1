@@ -2,11 +2,12 @@ const _ = require('underscore');
 const Sequelize = require("sequelize");
 const {getShopByIDs} = require('./Shops');
 const {getSalesCountByItemID} = require('./OrderDetails');
+const { enable } = require('express/lib/application');
 
 const getAllProducts = async (req, res, next) => {
 	console.log('getAllProducts >>>> called');
 	const Op = Sequelize.Op;
-	const { sortBy, Order, filter, from, to, type, value } = req.query;
+	const { sortBy, Order, filter, from, to, type, value, enabled } = req.query;
 	const conditions = {};
 	if (sortBy) {
 		conditions.order = [
@@ -24,6 +25,13 @@ const getAllProducts = async (req, res, next) => {
 		conditions.where = {
 			name: {
 				[Op.like]: `%${value}%`
+			}
+		};
+	}
+	if (type === 'out_of_stock' && enabled === 'false') {
+		conditions.where = {
+			qty: {
+				[Op.gte]: 1
 			}
 		};
 	}
