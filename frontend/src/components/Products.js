@@ -49,7 +49,7 @@ function Products({ data, loading, extras, fn, flags, disabled }) {
                       {product.salesCount} sold
                     </Card.Text> : '' }
                     <div className="button_panel">
-                        {!isDisabled('cart') ? <FaShoppingCart className="card-btn" style={{color: '#0070BA'}} title="Add to Cart" size="1.5em" /> : '' }
+                        {!isDisabled('cart') ? <FaShoppingCart className="card-btn" style={{color: '#0070BA'}} title="Add to Cart" size="1.5em" onClick={(e) => processClicks(e, fn.dispatch, 'addToCart', {id: product, data: userObj})} /> : '' }
                         {!isDisabled('edit') ? <FaPencilAlt className="card-btn" style={{color: '#0070BA'}} title="Edit Product" size="1.5em" /> : '' }
                         {flags && flags.isLoggedIn && 
                             (isFav(product.id) ? <FaHeart className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={(e) => processClicks(e, fn.dispatch, 'unfavourite', {id: product.id, data: userObj})} /> :

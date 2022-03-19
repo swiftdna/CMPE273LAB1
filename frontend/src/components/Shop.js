@@ -30,6 +30,10 @@ function Shop() {
         getShopDetails(dispatch);
     }, []);
 
+    useEffect(() => {
+        setShopForm(shopDetails);
+    }, [shopDetails])
+
     const onInputChange = (e) => {        
         setShopName(e.target.value);
         setNameExists(null);

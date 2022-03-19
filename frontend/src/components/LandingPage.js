@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import axios from 'axios';
 import { pluck } from 'underscore';
-import { fetchProducts, fetchFavourites, favourite, unfavourite } from '../utils';
+import { fetchProducts, fetchFavourites, favourite, unfavourite, addItemToCart, updatedItemInCart } from '../utils';
 import { favouritesLoading, handleFavouritesResponse } from '../actions/app-favourites';
 import { selectLoading, selectProducts } from '../selectors/productsSelector';
 import { selectFavourites } from '../selectors/favouritesSelector';
 import { selectIsLoggedIn, selectUser, selectCurrency } from '../selectors/appSelector';
+import { selectCartID, selectCartDetails } from '../selectors/cartSelector';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Row, Col, Form } from 'react-bootstrap';
@@ -21,10 +22,13 @@ function LandingPage() {
     const loading = useSelector(selectLoading);
     const isLoggedIn = useSelector(selectIsLoggedIn);
     const userObj = useSelector(selectUser);
+    const cartID = useSelector(selectCartID);
+    const cartDetails = useSelector(selectCartDetails);
     const products = useSelector(selectProducts);
     const favourites = useSelector(selectFavourites);
     const currency = useSelector(selectCurrency);
     const navigate = useNavigate();
+    const [oosFlag, setOOSFlag] = useState(true);
     const [sortBy, setSortBy] = useState('');
     const [showSlider, setShowSlider] = useState(false);
     const [filterObj, setFilterObj] = useState({ 
@@ -76,6 +80,21 @@ function LandingPage() {
         navigate(`/shop/${id}`);
     }
 
+    const addToCart = (dispatch, product, userObj) => {
+        const { id, price } = product;
+        const selectedQty = 1;
+        const existingProdRecArr = cartDetails.filter(cartDet => cartDet.item_id === id);
+        const existingProdRec = existingProdRecArr && existingProdRecArr.length ? existingProdRecArr[0] : {};
+        const newQty = existingProdRec && existingProdRec.qty ? selectedQty + existingProdRec.qty : selectedQty;
+        // Check if the item exists in cart
+        if (existingProdRec && existingProdRec.id) {
+            const cartItemId = existingProdRec.id;
+            updatedItemInCart(dispatch, cartItemId, { item_id: id, qty: newQty, price });
+        } else {
+            addItemToCart(dispatch, cartID, { item_id: id, qty: selectedQty, price });
+        }
+    }
+
     const onSelectChange = (event) => {
         setSortBy(event.target.value);
         // Trigger method call
@@ -85,6 +104,12 @@ function LandingPage() {
         console.log(from, to);
         setSortBy('');
         fetchProducts(dispatch, { filter: 'price_range', from, to });
+    }
+
+    const changeSwitch = (e) => {
+        const currentValue = !oosFlag;
+        setOOSFlag(currentValue);
+        fetchProducts(dispatch, { type: 'out_of_stock', enabled: currentValue });
     }
 
     const favs = pluck(favourites, 'item_id');
@@ -104,7 +129,7 @@ function LandingPage() {
       borderRadius: 5,
       backgroundColor: '#8B9CB6',
     }
-    console.log('filterObj -> ',filterObj);
+    
     return(
         <div className="container main-frame fill-page">
             <Row style={{width: '100%'}}>
@@ -161,9 +186,17 @@ function LandingPage() {
                       <option value="qty">Quantity</option>
                       <option value="sales">Sales Count</option>
                     </Form.Select>
+                    <Form.Check 
+                        checked={oosFlag}
+                        type="switch"
+                        style={{ float: 'right', fontSize: '14px' }}
+                        id="out_of_stock"
+                        onChange={e => changeSwitch(e)}
+                        label="include out of stock items"
+                      />
                 </Col>
             </Row>
-            <Products data={products} extras={{favs, userObj, currency}} loading={loading} flags={{isLoggedIn}} fn={{favourite, openProduct, unfavourite, dispatch, openShop}} disabled={['edit']} />
+            <Products data={products} extras={{favs, userObj, currency}} loading={loading} flags={{isLoggedIn}} fn={{favourite, openProduct, unfavourite, dispatch, openShop, addToCart}} disabled={['edit']} />
         </div>
     )
 }

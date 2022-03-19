@@ -61,7 +61,7 @@ function Navbar() {
     }
 
     const logout = () => {
-        axios.post('http://localhost:3000/logout')
+        axios.post('/logout')
             .then(response => {
                 dispatch(handleLogoutResponse(response));
             });
