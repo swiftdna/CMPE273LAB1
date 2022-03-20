@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getUserDetails, updateUserDetails} = require('./modules/UserProfile');
-const { getAllProducts, getProducts, getProduct, addProduct, removeProduct } = require('./modules/Products');
+const { getAllProducts, getProducts, getProduct, addProduct, modifyProduct, removeProduct } = require('./modules/Products');
 const { addFavourite, getFavourites, removeFavourite } = require('./modules/Favourites');
 const { addShop, getShop, updateShop, getShopByOwner, checkShopNameExists } = require('./modules/Shops');
 const { addCategory, getAllCategories, getCategories, removeCategory } = require('./modules/Categories');
@@ -19,7 +19,16 @@ router.put('/users/profile', isLoggedIn, updateUserDetails);
 router.get('/products', getAllProducts);
 router.get('/products/shop/:shop_id', getProducts);
 router.get('/products/:item_id', getProduct);
-// router.put('/products/:item_id', modifyProduct);
+router.put('/products/:item_id', isLoggedIn, (req, res) => {
+  const {params: {item_id}, body} = req;
+  // modifyProduct
+  modifyProduct({id: item_id, body}, (err, results) => {
+    if (!err) {
+      res.json({ success: true,  data: results });
+    }
+    res.json({success: false, err});
+  });
+});
 router.post('/products', isLoggedIn, addProduct);
 router.delete('/products', isLoggedIn, removeProduct);
 

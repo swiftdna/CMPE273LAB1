@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import { Spinner, InputGroup, Button, FormControl, Badge, Modal, Form } from 'react-bootstrap';
-import { addProduct, uploadImageToCloud, getProductCategories } from '../utils';
+import { Spinner, InputGroup, Button, FormControl, Badge, Modal, Form, Row, Col } from 'react-bootstrap';
+import { addProduct, uploadImageToCloud, getProductCategories, addNewCategory, modifyProduct } from '../utils';
 import { setToast } from '../actions/app-actions';
-import { selectShopCategories } from '../selectors/shopSelector';
+import { selectShopCategories, selectShopDetails } from '../selectors/shopSelector';
 
 
-function AddProduct({data, showFlag, fn}) {
+function AddProduct({data, showFlag, fn, mode}) {
     const dispatch = useDispatch();
     const categories = useSelector(selectShopCategories);
+    const shopDetails = useSelector(selectShopDetails);
+    const [showNewCategory, setShowNewCategory] = useState(false);
+    const [newCategory, setNewCategory] = useState('');
     const [productForm, setProductForm] = useState({
         name: '',
         image_url: '',
         description: '',
         price: '',
+        category_id: '',
         qty: ''
     });
 
@@ -22,9 +26,31 @@ function AddProduct({data, showFlag, fn}) {
         getProductCategories(dispatch);
     }, [data]);
 
-    const submitProduct = () => {
-        // Add shop id here to the object
-        console.log('submit product called ==> ', productForm);
+    useEffect(() => {
+        if (mode === 'edit') {
+            setProductForm(data);
+        } else {
+            setProductForm({
+                name: '',
+                image_url: '',
+                description: '',
+                price: '',
+                category_id: '',
+                qty: ''
+            });
+        }
+    }, [mode]);
+
+    const handleCloseButton = () => {
+        if (mode === 'edit' && fn && fn.handleEditProductClose) {
+            fn.handleEditProductClose();
+        }
+        if (mode === 'add' && fn && fn.handleAddProductClose) {
+            fn.handleAddProductClose();
+        }
+    }
+
+    const createProduct = () => {
         const productObj = {...productForm};
         productObj.shop_id = data.id;
         addProduct(dispatch, productObj, (err, successFlag) => {
@@ -40,7 +66,27 @@ function AddProduct({data, showFlag, fn}) {
                     fn.handleAddProductClose();
                 }
             }
-        })
+        });
+    }
+
+    const editProduct = () => {
+        // console.log('productForm => ', productForm);
+        const tempObj = {...productForm};
+        modifyProduct(dispatch, tempObj, (err, successFlag) => {
+            if (successFlag) {
+                handleCloseButton();
+            }
+        });
+    }
+
+    const submitProduct = () => {
+        // Add shop id here to the object
+        // console.log('submit product called ==> ',mode, productForm);
+        if (mode === 'add') {
+            createProduct();
+        } else {
+            editProduct();
+        }
     };
 
     const uploadImage = async (e) => {
@@ -66,11 +112,20 @@ function AddProduct({data, showFlag, fn}) {
         setProductForm(tempForm);
     }
 
+    const createNewCategory = () => {
+        addNewCategory(dispatch, { shop_id: shopDetails.id, name: newCategory }, (err, successFlag) => {
+            if (successFlag) {
+                setShowNewCategory(false);
+                setNewCategory('');
+            }
+        });
+    }
+
     return (
         <div className="container">
-            <Modal show={showFlag} onHide={fn && fn.handleAddProductClose}>
+            <Modal show={showFlag} onHide={handleCloseButton}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add product</Modal.Title>
+                    <Modal.Title>{mode && mode === 'edit' ? 'Modify Product' : 'Add product'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="user_details">
@@ -106,10 +161,36 @@ function AddProduct({data, showFlag, fn}) {
                             onChange={onProductFormChange}
                           />
                         <Form.Label htmlFor="category">Category</Form.Label>
-                        <Form.Select aria-label="Select category" id="category_id" value={productForm.category} onChange={onProductFormChange}>
-                            <option>Select One</option>
-                            {categories && categories.map(category => <option value={category.id}>{category.name}</option>)}
-                        </Form.Select>
+                        <Row>
+                            <Col xs={showNewCategory ? 12 : 9}>
+                                <Form.Select aria-label="Select category" id="category_id" value={productForm.category_id} onChange={onProductFormChange}>
+                                    <option>Select One</option>
+                                    {categories && categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
+                                </Form.Select>
+                            </Col>
+                            {!showNewCategory ? <Col xs={3}>
+                                <Button variant="success" onClick={() => setShowNewCategory(!showNewCategory)}>Add New</Button>
+                            </Col>: ''}
+                        </Row>
+                        {
+                            showNewCategory ? 
+                                <Row>
+                                <Form.Label htmlFor="new_category">New Category</Form.Label>
+                                <Col xs={8}>
+                                    <Form.Control
+                                        type="text"
+                                        id="new_category"
+                                        aria-describedby="new_category"
+                                        value={newCategory}
+                                        onChange={(e) => setNewCategory(e.target.value)}
+                                      />
+                                </Col>
+                                <Col xs={4}>
+                                    <Button variant="success" onClick={() => createNewCategory()}>Add</Button>
+                                    <Button style={{marginLeft: '5px'}} variant="danger" onClick={() => setShowNewCategory(!showNewCategory)}>Cancel</Button>
+                                </Col>
+                                </Row> : ''
+                        }
                         <Form.Label htmlFor="price">Price</Form.Label>
                         <Form.Control
                             type="text"
@@ -129,7 +210,7 @@ function AddProduct({data, showFlag, fn}) {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={fn && fn.handleAddProductClose}>
+                    <Button variant="secondary" onClick={() => handleCloseButton()}>
                         Close
                     </Button>
                     <Button variant="primary" onClick={() => submitProduct()}>

@@ -69,6 +69,7 @@ const getAllCategories = async (req, res, next) => {
 const addCategory = async (req, res, next) => {
 	const {body} = req;
 	const {models: {category: Category}} = COREAPP;
+	// Shop id and name is mandatory
 	try {
 		const categoryData = await Category.create(body);
 		if (!categoryData) {

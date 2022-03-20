@@ -6,7 +6,9 @@ import {
   SET_ALERT,
   CLEAR_ALERT,
   SET_TOAST,
-  CLEAR_TOAST
+  CLEAR_TOAST,
+  SET_CURRENCY,
+  ADD_COUNTRIES
 } from '../constants/actionTypes';
 
 const initialState = {
@@ -15,7 +17,9 @@ const initialState = {
   alertMessage: '',
   alertType: 'error',
   isLoggedIn: false,
-  user: {}
+  user: {},
+  currency: 'USD',
+  countries: []
 };
 
 const resetAlert = {
@@ -96,6 +100,18 @@ export default function appReducer(state = initialState, action) {
         ...state,
         ...resetToast
       };
+    }
+    case SET_CURRENCY: {
+      return {
+        ...state,
+        currency: action.payload
+      }
+    }
+    case ADD_COUNTRIES: {
+      return {
+        ...state,
+        countries: action.payload
+      }
     }
     default:
       return state

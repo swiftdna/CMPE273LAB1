@@ -261,6 +261,24 @@ export function addProduct(dispatch, params, callback) {
         });
 }
 
+export function modifyProduct(dispatch, params, callback) {
+    const {id} = params;
+    delete params.id;
+    axios.put(`/api/products/${id}`, params)
+        .then(response => {
+            const {data} = response;
+            if (data.success) {
+                callback(null, true);
+                dispatch(setToast({
+                    type: 'success',
+                    message: 'Product modified successfully!'
+                }));
+                getShopProducts(dispatch, params.shop_id);
+            }
+            callback(true);
+        });
+}
+
 export function uploadImageToCloud(dispatch, file) {
     const formData = new FormData()
     formData.append('file', file)
@@ -284,5 +302,18 @@ export function getProductCategories(dispatch) {
     axios.get(`/api/categories`)
         .then(response => {
             dispatch(handleCategoryResponse(response));
+        });
+}
+
+export function addNewCategory(dispatch, data, callback) {
+    axios.post(`/api/categories`, data)
+        .then(response => {
+            const {data} = response;
+            if (data.success) {
+                // refresh categories
+                getProductCategories(dispatch);
+                return callback(null, true);
+            }
+            return callback(false);
         });
 }

@@ -1,8 +1,8 @@
 const _ = require('underscore');
 const Sequelize = require("sequelize");
-const {getShopByIDs} = require('./Shops');
+const { getShopByIDs } = require('./Shops');
 const {getSalesCountByItemID} = require('./OrderDetails');
-const { enable } = require('express/lib/application');
+// const { enable } = require('express/lib/application');
 
 const getAllProducts = async (req, res, next) => {
 	console.log('getAllProducts >>>> called');
@@ -85,7 +85,7 @@ const getAllProducts = async (req, res, next) => {
 };
 
 const getProducts = async (req, res, next) => {
-	const { shop_id } = req.params;
+	const { shop_id, internal } = req.params;
 	const {models: {product: Product}} = COREAPP;
 	console.log('getProducts -> shop_id - ', shop_id);
 	try {
@@ -106,6 +106,11 @@ const getProducts = async (req, res, next) => {
 				prod.salesCount = sales[prod.id];
 				return prod;
 			});
+			if (internal) {
+				req.model = {};
+				req.model.data = tempProds;
+				return next();
+			}
     		res.json({
     			success: true,
     			data: tempProds
@@ -131,7 +136,7 @@ const getProductByIDs = async (req, res, next) => {
 	const { models: {product: Product} } = COREAPP;
 	const Op = Sequelize.Op;
 
-	console.log('getProducts -> productIDs - ', productIDs);
+	console.log('getProductByIDs -> productIDs - ', productIDs);
 	try {
 		const products = await Product.findAll({
 	        where: {
@@ -231,7 +236,6 @@ const modifyProduct = async (params, callback) => {
 	console.log('modifyProduct called with - ', params);
 	const { models: { product: Product } } = COREAPP;
 	const { id, body } = params;
-	// Image upload to be handled
 	try {
 		const productData = await Product.findOne({
 			where: {
@@ -240,13 +244,15 @@ const modifyProduct = async (params, callback) => {
 		});
 		if (productData && productData.id) {
 			// Get products in this order and 
-			productData.update(body);
-			return callback(null, true);
+			const updateRes = await productData.update(body);
+			return callback(null, updateRes);
 		} else {
 			return callback('Order not found in the database');
 		}
 	} catch(err) {
     	console.log('modifyProduct ERR!! -> ', err);
+		if (res.headersSent)
+			return;
     	return callback(err);
     }
 };
