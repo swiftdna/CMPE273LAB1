@@ -41,7 +41,7 @@ function ShopPage() {
                             <Col>
                                 <p>{shopDetails.name}</p>
                                 <p>
-                                    Products: {products && products.length}
+                                    <Badge bg="warning" text="dark">Products: {products && products.length}</Badge> <Badge bg="warning" text="dark" className="total_sales_count">Total Sales: {shopDetails && shopDetails.totalSales}</Badge>
                                 </p>
                             </Col>
                         </Row>
@@ -49,7 +49,7 @@ function ShopPage() {
                             products && products.length ? 
                             <Row style={{marginTop: '15px'}}>
                                 <h5>Products:</h5>
-                                <Products data={products} extras={{userObj, currency}} loading={productsLoading} fn={{openProduct, dispatch}} disabled={['cart']} />
+                                <Products data={products} extras={{userObj, currency}} loading={productsLoading} fn={{openProduct, dispatch}} disabled={['cart', 'edit']} />
                             </Row> : ''
                         }
                     </div>

@@ -16,7 +16,9 @@ function Shop() {
     const [shopName, setShopName] = useState('');
     const [editMode, setEditMode] = useState(false);
     const [addProductOn, setAddProductOn] = useState(false);
+    const [editProductOn, setEditProductOn] = useState(false);
     const [nameExists, setNameExists] = useState(null);
+    const [editProductObj, setEditProductObj] = useState({});
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const shopDetails = useSelector(selectShopDetails);
@@ -74,12 +76,23 @@ function Shop() {
     };
 
     const handleAddProductClose = () => {
-        console.log('handleAddProductClose called');
+        // console.log('handleAddProductClose called');
         setAddProductOn(false);
+    };
+
+    const handleEditProductClose = () => {
+        // console.log('handleEditProductClose called');
+        setEditProductOn(false);
     };
 
     const openProduct = (id) => {
         navigate(`/product/${id}`)
+    };
+
+    const editProduct = (dispatch, product) => {
+        // console.log('Edit product - ', product);
+        setEditProductObj(product);
+        setEditProductOn(true);
     };
 
     const uploadImage = async (e) => {
@@ -125,7 +138,7 @@ function Shop() {
                                     <FaSave className="edit_icon" size="1em" onClick={() => setEditMode(!editMode) } /> }
                                 </p>
                                 <p>
-                                    Products: {products && products.length}
+                                    <Badge bg="warning" text="dark">Products: {products && products.length}</Badge> <Badge bg="warning" text="dark" className="total_sales_count">Total Sales: {shopDetails && shopDetails.totalSales}</Badge>
                                 </p>
                             </Col>
                             <Col xs={2}>
@@ -134,11 +147,11 @@ function Shop() {
                         </Row>
                         {
                             products && products.length ? 
-                                <Products data={products} extras={{userObj, currency}} loading={productsLoading} fn={{openProduct, dispatch}} disabled={['cart']} /> : ''
+                                <Products data={products} extras={{userObj, currency}} loading={productsLoading} fn={{openProduct, dispatch, editProduct}} disabled={['cart']} /> : ''
                         }
                     </div>
                 ) : ''}
-            <AddProduct showFlag={addProductOn} data={shopDetails} fn={{handleAddProductClose}} />
+            <AddProduct showFlag={addProductOn || editProductOn} data={addProductOn ? shopDetails : editProductObj} fn={{handleAddProductClose, handleEditProductClose}} mode={editProductOn ? 'edit' : 'add'}/>
             <Modal show={editMode} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit shop - {shopDetails.name}</Modal.Title>

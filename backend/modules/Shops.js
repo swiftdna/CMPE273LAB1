@@ -8,13 +8,24 @@ const getShopByOwner = async (req, res, next) => {
 		const shop = await Shop.findOne({
 	        where: {
 	            owner_id: user_id
-	        }
+	        },
+			raw: true
 	    });
     	if (shop) {
-    		res.json({
-    			success: true,
-    			data: shop
-    		});
+			const {getProducts} = require('./Products');
+			req.params.shop_id = shop.id;
+			req.params.internal = true;
+			return getProducts(req, res, () => {
+				const {data} = req.model;
+				console.log('data ==> ', data);
+				const totalSales = data.reduce((total, item) => {
+					return total + (item.salesCount ? Number(item.salesCount) : 0);
+				}, 0);
+				res.json({
+					success: true,
+					data: { ...shop, totalSales }
+				});
+			});
     	} else {
     		res.json({
     			success: true,
@@ -104,14 +115,27 @@ const getShop = async (req, res, next) => {
 		const shop = await Shop.findOne({
 	        where: {
 	            id: shop_id
-	        }
+	        },
+			raw: true
 	    });
     	console.log('shop -> ', shop);
     	if (shop) {
-    		res.json({
-    			success: true,
-    			data: shop
-    		});
+			const {getProducts} = require('./Products');
+			// Get shop total sales
+			// Get products of the shop
+			req.params.shop_id = shop_id;
+			req.params.internal = true;
+			return getProducts(req, res, () => {
+				const {data} = req.model;
+				console.log('data ==> ', data);
+				const totalSales = data.reduce((total, item) => {
+					return total + (item.salesCount ? Number(item.salesCount) : 0);
+				}, 0);
+				res.json({
+					success: true,
+					data: {...shop, totalSales: totalSales }
+				});
+			});
     	} else {
     		res.json({
     			success: true,

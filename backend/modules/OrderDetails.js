@@ -228,9 +228,9 @@ const getOverallSalesCountByItemIDs = async (itemIDs) => {
 		const { models: { order_detail: OrderDetail } } = COREAPP;
 		const Op = Sequelize.Op;
 
-		console.log('getSalesCountByItemID -> itemIDs - ', itemIDs);
+		console.log('getOverallSalesCountByItemIDs -> itemIDs - ', itemIDs);
 		try {
-			const orderDetails = await OrderDetail.findAll({
+			const salesData = await OrderDetail.findAll({
 		        where: {
 		            item_id: {
 						[Op.in]: itemIDs
@@ -239,14 +239,14 @@ const getOverallSalesCountByItemIDs = async (itemIDs) => {
 		        attributes: [[Sequelize.fn('sum', Sequelize.col('qty')), 'sales']],
 		        raw: true
 		    });
-	    	console.log('salesCount -> ', orderDetails);
-	    	if (orderDetails) {
-	    		return resolve(orderDetails);
+	    	console.log('salesCount -> ', salesData);
+	    	if (salesData) {
+	    		return resolve(salesData);
 	    	} else {
 	    		return resolve([]);
 	    	}
 	    } catch (err) {
-	    	console.log('getSalesCountByItemID ERR!! -> ', err);
+	    	console.log('getOverallSalesCountByItemIDs ERR!! -> ', err);
 	    	return reject(err);
 		}
 	});
