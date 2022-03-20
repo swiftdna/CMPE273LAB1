@@ -41,6 +41,10 @@
   transition: all 0.3s ease 0s;
 }
 
+.card-title {
+  max-width: 80%;
+}
+
 .card-btn:hover {
   color: #fff;
   cursor: pointer;
@@ -66,8 +70,17 @@
   margin-top: 10px;
 }
 
+.product-card {
+  border:  none !important;
+}
+
 .product-card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  /*box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);*/
+  box-shadow: 0 2px 18px rgb(34 34 34 / 20%);
+  background: #FFFFFF;
+  border: 1px dotted transparent;
+  transform: scale(0.96);
+  transition: transform 200ms cubic-bezier(0.345, 0.115, 0.135, 1.42),opacity 150ms ease-out,border-color 200ms ease-out;
 }
 
 .edit_icon {
@@ -96,6 +109,13 @@
 
 .page-footer {
   background-color: #F1F1F1;
+  /*position: fixed;*/
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 70px;
+  line-height: 37px; /* Vertically center the text there */
+  background-color: #f5f5f5;
 }
 
 .custom_toast {
@@ -115,4 +135,36 @@
 
 .order_item_heading {
   background-color: #fafafa !important;
+  font-weight: bold;
+}
+
+.order_item_heading > .total {
+  margin-left: 20px;
+}
+
+.pull-right {
+  float: right;
+}
+
+.shop_container > .btn {
+  margin-top: -30px;
+}
+
+.form_label {
+  font-weight: bold;
+}
+
+.user_details {
+  margin-top: 30px;
+}
+
+.fill-page {
+  min-height: 50vw;
+  margin-bottom: -50px;
+  margin-bottom: 70px;
+}
+
+.currency_btn {
+  color:  #0070BA;
+  cursor: pointer;
 }
