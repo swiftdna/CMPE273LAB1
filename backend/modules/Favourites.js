@@ -1,3 +1,29 @@
+const getAllFavourites = async (req, res, next) => {
+	const {models: {favourite: Favourite}} = COREAPP;
+	try {
+		const favourites = await Favourite.findAll({});
+    	console.log('favourites -> ', favourites);
+    	if (favourites) {
+    		res.json({
+    			success: true,
+    			data: favourites
+    		});
+    	} else {
+    		res.json({
+    			success: true,
+    			data: {},
+    			message: 'Favourites not found!'
+    		});
+    	}
+    } catch (err) {
+    	console.log('getAllFavourites ERR!! -> ', err);
+    	res.json({
+	    	success: false,
+	    	message: err.message
+	    });
+	}
+};
+
 const getFavourites = async (req, res, next) => {
 	const { user_id } = req.params;
 	const {models: {favourite: Favourite}} = COREAPP;
@@ -72,19 +98,18 @@ const removeFavourite = async (req, res, next) => {
         	message: 'Favourite removed!',
         	data: favouriteData
         });
-        return next();
 	} catch(err) {
     	console.log('removeFavourite ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
 	    });
-		return next();
     }
 };
 
 module.exports = {
 	addFavourite,
+	getAllFavourites,
 	getFavourites,
 	removeFavourite
 };

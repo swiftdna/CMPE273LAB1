@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getUserDetails, updateUserDetails} = require('./modules/UserProfile');
 const { getAllProducts, getProducts, getProduct, addProduct, modifyProduct, removeProduct } = require('./modules/Products');
-const { addFavourite, getFavourites, removeFavourite } = require('./modules/Favourites');
+const { addFavourite, getAllFavourites, getFavourites, removeFavourite } = require('./modules/Favourites');
 const { addShop, getShop, updateShop, getShopByOwner, checkShopNameExists } = require('./modules/Shops');
 const { addCategory, getAllCategories, getCategories, removeCategory } = require('./modules/Categories');
 const { getOrders, getOrder, getCartOrder, addOrder, removeOrder, modifyOrder } = require('./modules/Orders');
@@ -32,6 +32,7 @@ router.put('/products/:item_id', isLoggedIn, (req, res) => {
 router.post('/products', isLoggedIn, addProduct);
 router.delete('/products', isLoggedIn, removeProduct);
 
+router.get('/favourites', getAllFavourites);
 router.get('/favourites/:user_id', isLoggedIn, getFavourites);
 router.post('/favourites/:user_id/:item_id', isLoggedIn, addFavourite);
 router.delete('/favourites/:user_id/:item_id', isLoggedIn, removeFavourite);
@@ -68,6 +69,29 @@ router.get('/countries', (req, res) => {
   });
 });
 
+router.get('/favs', (req, res) => {
+  // const mysqlConnection = require('./config/mysql_native');
+  const mysql = require('mysql');
+  const dbConfig = require("./config/mysql");
+  const connection = mysql.createConnection({
+    host: dbConfig.HOST,
+    user: dbConfig.USER,
+    password: dbConfig.PASSWORD,
+    database: dbConfig.DB
+  });
+
+  connection.connect((err) => {
+    if (err) throw err;
+    console.log('Connected to MySQL Server!');
+    connection.query('SELECT * from favourites', (err, rows) => {
+      if(err) throw err;
+      // mysqlConnection.destroy();
+      res.json({success: true, data: rows});
+      connection.destroy();
+    });
+  });
+});
+
 router.get('/session', (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated() && req.session) {
     const {passport: {user}} = req.session ? req.session : {};
@@ -80,6 +104,10 @@ router.get('/session', (req, res) => {
 
 function isLoggedIn(req, res, next) {
   // console.log('session -> ', req.session);
+  if (process.env.NODE_ENV === 'test') {
+    // for testing only
+    return next();
+  }
   if (req.isAuthenticated && req.isAuthenticated()) {
     // console.log('req.isAuthenticated() ----> ', req.isAuthenticated());
     console.log(req.session.passport);

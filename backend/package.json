@@ -4,7 +4,8 @@
   "description": "Etsy application backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "mocha --timeout 10000"
   },
   "author": "Prashanth Subbiah",
   "license": "ISC",
@@ -17,10 +18,17 @@
     "express": "^4.17.3",
     "express-session": "^1.17.2",
     "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "sequelize": "^6.17.0",
     "underscore": "^1.13.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
+    "mocha": "^9.2.2",
+    "sinon": "^13.0.1"
   }
 }

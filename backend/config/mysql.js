@@ -2,7 +2,7 @@ module.exports = {
   HOST: process.env.MYSQLDB_HOST,
   USER: process.env.MYSQLDB_USER,
   PASSWORD: process.env.MYSQLDB_ROOT_PASSWORD,
-  DB: process.env.MYSQLDB_DATABASE,
+  DB: process.env.NODE_ENV === 'test' ? process.env.MYSQLDB_TEST_DATABASE : process.env.MYSQLDB_DATABASE,
   port: process.env.MYSQLDB_LOCAL_PORT,
   dialect: "mysql",
   pool: {

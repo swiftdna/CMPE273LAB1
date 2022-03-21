@@ -12,8 +12,11 @@ const getOrders = async (req, res, next) => {
 		const orders = await Order.findAll({
 	        where: {
 	            user_id: user_id,
-				status: 'active'
+				status: 'active',
 	        },
+	        order: [
+				['createdAt', 'DESC']
+			],
 			raw: true
 	    });
     	console.log('orders -> ', orders);

@@ -5,7 +5,7 @@ const {getSalesCountByItemID} = require('./OrderDetails');
 // const { enable } = require('express/lib/application');
 
 const getAllProducts = async (req, res, next) => {
-	console.log('getAllProducts >>>> called');
+	// console.log('getAllProducts >>>> called');
 	const Op = Sequelize.Op;
 	const { sortBy, Order, filter, from, to, type, value, enabled } = req.query;
 	const conditions = {};
@@ -35,7 +35,7 @@ const getAllProducts = async (req, res, next) => {
 			}
 		};
 	}
-	console.log('conditions -> ', conditions);
+	// console.log('conditions -> ', conditions);
 	conditions.raw = true;
 	const {models: {product: Product}} = COREAPP;
 	try {
@@ -87,7 +87,7 @@ const getAllProducts = async (req, res, next) => {
 const getProducts = async (req, res, next) => {
 	const { shop_id, internal } = req.params;
 	const {models: {product: Product}} = COREAPP;
-	console.log('getProducts -> shop_id - ', shop_id);
+	// console.log('getProducts -> shop_id - ', shop_id);
 	try {
 		const products = await Product.findAll({
 	        where: {
@@ -123,7 +123,7 @@ const getProducts = async (req, res, next) => {
     		});
     	}
     } catch (err) {
-    	console.log('getProducts ERR!! -> ', err);
+    	// console.log('getProducts ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
@@ -136,7 +136,7 @@ const getProductByIDs = async (req, res, next) => {
 	const { models: {product: Product} } = COREAPP;
 	const Op = Sequelize.Op;
 
-	console.log('getProductByIDs -> productIDs - ', productIDs);
+	// console.log('getProductByIDs -> productIDs - ', productIDs);
 	try {
 		const products = await Product.findAll({
 	        where: {
@@ -153,7 +153,7 @@ const getProductByIDs = async (req, res, next) => {
     	}
     	return next();
     } catch (err) {
-    	console.log('getProducts ERR!! -> ', err);
+    	// console.log('getProducts ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
@@ -164,7 +164,7 @@ const getProductByIDs = async (req, res, next) => {
 const getProduct = async (req, res, next) => {
 	const { item_id } = req.params;
 	const {models: {product: Product}} = COREAPP;
-	console.log('getProducts -> item_id - ', item_id);
+	// console.log('getProducts -> item_id - ', item_id);
 	try {
 		const products = await Product.findOne({
 	        where: {
@@ -172,7 +172,7 @@ const getProduct = async (req, res, next) => {
 	        },
 			raw: true
 	    });
-    	console.log('products -> ', products);
+    	// console.log('products -> ', products);
     	if (products) {
 			const shopIDs = [products.shop_id];
 			req.query.shopIDs = shopIDs;
@@ -223,7 +223,7 @@ const addProduct = async (req, res, next) => {
         });
         return next();
 	} catch(err) {
-    	console.log('addProduct ERR!! -> ', err);
+    	// console.log('addProduct ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
@@ -250,7 +250,7 @@ const modifyProduct = async (params, callback) => {
 			return callback('Order not found in the database');
 		}
 	} catch(err) {
-    	console.log('modifyProduct ERR!! -> ', err);
+    	// console.log('modifyProduct ERR!! -> ', err);
 		if (res.headersSent)
 			return;
     	return callback(err);

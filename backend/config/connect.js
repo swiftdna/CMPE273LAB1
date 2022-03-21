@@ -2,9 +2,10 @@ const dbConfig = require("./mysql");
 const Sequelize = require("sequelize");
 
 module.exports = async () => {
-  console.log('>>>> connect called >>>');
-  console.log('dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, dbConfig.HOST, dbConfig.port' , dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, dbConfig.HOST, dbConfig.port);
+  // console.log('>>>> connect called >>>');
+  // console.log('dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, dbConfig.HOST, dbConfig.port' , dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, dbConfig.HOST, dbConfig.port);
   const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+    logging: process.env.NODE_ENV === 'test' ? false : console.log,
     host: dbConfig.HOST,
     dialect: dbConfig.dialect,
     port: dbConfig.port,
