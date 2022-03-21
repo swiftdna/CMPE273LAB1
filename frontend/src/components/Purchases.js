@@ -20,7 +20,7 @@ function Purchases() {
     }, []);
 
     const getDateText = (data) => {
-        return moment(data).format('DD MMM YYYY');
+        return moment(data).format('lll');
     };
 
     const openProduct = (id) => {
@@ -57,8 +57,8 @@ function Purchases() {
                                         <Image src={dtl.product && dtl.product.photo_url} style={{objectFit: 'cover', width: '50px', height: '50px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
                                     </Col>
                                     <Col xs={6}>{dtl.product && dtl.product.name}</Col>
-                                    <Col xs={2}>{dtl.product && dtl.product.qty}</Col>
-                                    <Col xs={2}>{currency}{dtl.product && dtl.product.price * dtl.product.qty}</Col>
+                                    <Col xs={2}>{dtl.qty}</Col>
+                                    <Col xs={2}>{currency}{dtl.price * dtl.qty}</Col>
                                 </Row>
                             </ListGroup.Item>
                             )

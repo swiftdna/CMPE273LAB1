@@ -122,7 +122,7 @@
   position: absolute;
   right: 5px;
   z-index: 10;
-  top: 10px;
+  bottom: 10px;
 }
 
 .order_item {
@@ -167,4 +167,14 @@
 .currency_btn {
   color:  #0070BA;
   cursor: pointer;
+}
+
+.link_item {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #0070BA;
+}
+
+.total_sales_count {
+  margin-left: 10px;
 }

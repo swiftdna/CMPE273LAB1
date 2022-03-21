@@ -108,7 +108,7 @@ export function checkSession(dispatch) {
             dispatch(handleLoginResponse(response));
         })
         .catch(err => {
-            console.log(err);
+            // console.log(err.message);
         });
 }
 

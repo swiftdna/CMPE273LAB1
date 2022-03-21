@@ -10,6 +10,7 @@ import { selectFavourites } from '../selectors/favouritesSelector';
 import { fetchProductDetails, addItemToCart, updatedItemInCart, favourite, unfavourite } from '../utils';
 import { Row, Col, Button, InputGroup, Badge } from 'react-bootstrap';
 import { selectCurrency, selectUser } from '../selectors/appSelector';
+import { selectShopCategories } from '../selectors/shopSelector';
 import { FaRegHeart, FaHeart } from 'react-icons/fa';
 import Image from 'react-bootstrap/Image';
 
@@ -20,6 +21,7 @@ function ProductDetails() {
     const productDetails = useSelector(selectProductDetails);
     const favourites = useSelector(selectFavourites);
     const cartDetails = useSelector(selectCartDetails);
+    const shopCategories = useSelector(selectShopCategories);
     const cartID = useSelector(selectCartID);
     const currency = useSelector(selectCurrency);
     const userObj = useSelector(selectUser);
@@ -29,7 +31,7 @@ function ProductDetails() {
 
     useEffect(() => {
         fetchProductDetails(dispatch, productID);
-    }, []);
+    }, [productID]);
 
     const incQty = () => {
         if (selectedQty < Number(productDetails.qty)) {
@@ -70,7 +72,7 @@ function ProductDetails() {
     };
 
     const favs = pluck(favourites, 'item_id');
-
+    console.log(shopCategories);
     return(
         <div className="container pull-down fill-page">
             <Row>

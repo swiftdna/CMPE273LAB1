@@ -7,9 +7,9 @@ import rootReducer from './reducers'
 export default function configureAppStore(preloadedState) {
   const store = configureStore({
     reducer: rootReducer,
-    middleware: [loggerMiddleware, ...getDefaultMiddleware()],
+    middleware: process.env.NODE_ENV !== 'test' ? [loggerMiddleware, ...getDefaultMiddleware()] : [...getDefaultMiddleware()],
     preloadedState,
-    enhancers: [monitorReducersEnhancer]
+    enhancers: process.env.NODE_ENV !== 'test' ? [monitorReducersEnhancer] : []
   })
 
   if (process.env.NODE_ENV !== 'production' && module.hot) {

@@ -20,7 +20,7 @@ import { useLocation } from 'react-router-dom';
 import Cart from './Cart';
 import { checkSession } from '../utils';
 import ProtectedRoute from './ProtectedRoute';
-import {Toast} from 'react-bootstrap';
+import {Toast, ToastContainer} from 'react-bootstrap';
 import { selectAlertFlag, selectToastFlag, selectAlertMessage, selectAlertType, selectIsLoggedIn } from '../selectors/appSelector';
 import { clearToast } from '../actions/app-actions';
 
@@ -55,13 +55,14 @@ export function Main() {
                     </div>
                 </div> : ''
             }
-            <Toast className="custom_toast" onClose={() => dispatch(clearToast())} show={toast} delay={4000} autohide>
-              <Toast.Header>
-                <strong className="me-auto">{alertType}</strong>
-                <small>click x to dismiss</small>
-              </Toast.Header>
-              <Toast.Body>{alertMessage}</Toast.Body>
-            </Toast>
+            <ToastContainer className="p-3" position={'bottom-end'} style={{zIndex: 10}}>
+                <Toast onClose={() => dispatch(clearToast())} show={toast} delay={4000} autohide>
+                  <Toast.Header>
+                    <strong className="me-auto">{alertType}</strong>
+                  </Toast.Header>
+                  <Toast.Body>{alertMessage}</Toast.Body>
+                </Toast>
+            </ToastContainer>
             <Routes>
               <Route path="/login" element={<Login />} />
               {/* <Route path="/home" element={isAuthenticated ? <Home /> : <Login />} /> */}
