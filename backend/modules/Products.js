@@ -1,54 +1,50 @@
 const _ = require('underscore');
-const Sequelize = require("sequelize");
+const {ObjectId} = require('mongodb');
+// const Sequelize = require("sequelize");
 const { getShopByIDs } = require('./Shops');
 const {getSalesCountByItemID} = require('./OrderDetails');
 // const { enable } = require('express/lib/application');
 
 const getAllProducts = async (req, res, next) => {
 	// console.log('getAllProducts >>>> called');
-	const Op = Sequelize.Op;
 	const { sortBy, Order, filter, from, to, type, value, enabled } = req.query;
+	const sortingObj = {};
 	const conditions = {};
 	if (sortBy) {
-		conditions.order = [
-			[sortBy, Order ? Order.toUpperCase() : 'ASC']
-		];
+		sortingObj = {
+			[sortBy]: Order ? Order.toLowerCase() : 'asc'
+		};
 	}
 	if (filter === 'price_range') {
-		conditions.where = {
-			price: {
-				[Op.between]: [from, to]
-			}
+		conditions.price = {
+			$gte: from,
+			$lt: to
 		};
 	}
 	if (type === 'search') {
-		conditions.where = {
-			name: {
-				[Op.like]: `%${value}%`
-			}
-		};
+		conditions.name= new RegExp(value, 'i');
 	}
 	if (type === 'out_of_stock' && enabled === 'false') {
-		conditions.where = {
-			qty: {
-				[Op.gte]: 1
-			}
+		conditions.qty = {
+			$gte: 1
 		};
 	}
-	// console.log('conditions -> ', conditions);
-	conditions.raw = true;
-	const {models: {product: Product}} = COREAPP;
+	console.log('conditions -> ', conditions, sortingObj);
+	const { db } = COREAPP;
+	const products = db.collection('products');
 	try {
-		const products = await Product.findAll(conditions);
-    	if (products) {
+		// const productsData = await products.find(conditions).sort(sortingObj).toArray();
+		const productsData = await products.find({}).toArray();
+    	if (productsData) {
 			// get Shop details
 			const productIDs = _.unique(_.pluck(products, 'id'));
 			const productSalesData = await getSalesCountByItemID(productIDs);
+			console.log('productSalesData -> ', productSalesData);
 			const sales = {};
 			productSalesData.map(prodSales => {
-				sales[prodSales.item_id] = prodSales.sales;
+				sales[prodSales._id] = prodSales.sales;
 			});
-			const shopIDs = _.unique(_.pluck(products, 'shop_id'));
+			const shopIDs = _.unique(_.pluck(productsData, 'shop_id'));
 			req.query.shopIDs = shopIDs;
 			req.model = {};
 			return getShopByIDs(req, res, () => {
@@ -57,21 +53,21 @@ const getAllProducts = async (req, res, next) => {
 				data.map(shop => {
 					shopMap[shop.id] = shop;
 				})
-				const tempProds = products.map(prod => {
+				const tempProds = productsData.map(prod => {
 					prod.shop_details = shopMap[prod.shop_id];
-					prod.salesCount = sales[prod.id];
+					prod.salesCount = sales[prod._id.toString()];
 					return prod;
 				});
 				res.json({
 					success: true,
 					data: tempProds
 				});
-			})
-    	} else {
-    		res.json({
-    			success: true,
-    			data: []
-    		});
+			});
+    	// } else {
+    		// res.json({
+    		// 	success: true,
+    		// 	data: productsData
+    		// });
     	}
     	return next();
     } catch (err) {
@@ -86,15 +82,13 @@ const getAllProducts = async (req, res, next) => {
 
 const getProducts = async (req, res, next) => {
 	const { shop_id, internal } = req.params;
-	const {models: {product: Product}} = COREAPP;
+	const { db } = COREAPP;
+	const Product = db.collection('products');
 	// console.log('getProducts -> shop_id - ', shop_id);
 	try {
-		const products = await Product.findAll({
-	        where: {
-	            shop_id: shop_id
-	        },
-			raw: true
-	    });
+		const products = await Product.find({
+			shop_id: shop_id
+	    }).toArray();
     	if (products) {
 			const productIDs = _.unique(_.pluck(products, 'id'));
 			const productSalesData = await getSalesCountByItemID(productIDs);
@@ -132,22 +126,20 @@ const getProducts = async (req, res, next) => {
 };
 
 const getProductByIDs = async (req, res, next) => {
-	const { productIDs } = req.query;
-	const { models: {product: Product} } = COREAPP;
-	const Op = Sequelize.Op;
+	let { productIDs } = req.query;
+	const {db} = COREAPP;
+	const products = db.collection('products');
 
 	// console.log('getProductByIDs -> productIDs - ', productIDs);
+	productIDs = productIDs.map(prodid => ObjectId(prodid));
 	try {
-		const products = await Product.findAll({
-	        where: {
-	        	id: {
-	            	[Op.in]: productIDs
-	        	}
-	        },
-	        raw: true
-	    });
-    	if (products) {
-    		req.model.data = products;
+		const productsData = await products.find({
+			_id: {
+				$in: productIDs
+			}
+	    }).toArray();
+    	if (productsData) {
+    		req.model.data = productsData;
     	} else {
     		req.model.data = [];
     	}
@@ -163,18 +155,16 @@ const getProductByIDs = async (req, res, next) => {
 
 const getProduct = async (req, res, next) => {
 	const { item_id } = req.params;
-	const {models: {product: Product}} = COREAPP;
+	const {db} = COREAPP;
+	const products = db.collection('products');
 	// console.log('getProducts -> item_id - ', item_id);
 	try {
-		const products = await Product.findOne({
-	        where: {
-	            id: item_id
-	        },
-			raw: true
+		const productsData = await products.findOne({
+			_id: ObjectId(item_id)
 	    });
     	// console.log('products -> ', products);
-    	if (products) {
-			const shopIDs = [products.shop_id];
+    	if (productsData) {
+			const shopIDs = [productsData.shop_id];
 			req.query.shopIDs = shopIDs;
 			req.model = {};
 			return getShopByIDs(req, res, () => {
@@ -183,10 +173,10 @@ const getProduct = async (req, res, next) => {
 				data.map(shop => {
 					shopMap[shop.id] = shop;
 				})
-				products.shop_details = shopMap[products.shop_id];
+				productsData.shop_details = shopMap[productsData.shop_id];
 				res.json({
 					success: true,
-					data: products
+					data: productsData
 				});
 			});
     	} else {
@@ -209,10 +199,11 @@ const getProduct = async (req, res, next) => {
 
 const addProduct = async (req, res, next) => {
 	const { body } = req;
-	const {models: {product: Product}} = COREAPP;
+	const {db} = COREAPP;
+	const products = db.collection('products');
 	// Image upload to be handled
 	try {
-		const productData = await Product.create(body);
+		const productData = await products.insertOne(body);
 		if (!productData) {
             return res.json({success: false, message: 'Unable to add product'});
         }
@@ -234,38 +225,39 @@ const addProduct = async (req, res, next) => {
 
 const modifyProduct = async (params, callback) => {
 	console.log('modifyProduct called with - ', params);
-	const { models: { product: Product } } = COREAPP;
+	const { db } = COREAPP;
+	const product = db.collection('products');
 	const { id, body } = params;
 	try {
-		const productData = await Product.findOne({
-			where: {
-				id
-			}
+		const productData = await product.findOne({
+			_id: ObjectId(id)
 		});
-		if (productData && productData.id) {
+		if (productData && productData._id) {
 			// Get products in this order and 
-			const updateRes = await productData.update(body);
+			const updateRes = await product.updateOne({
+				_id: ObjectId(id)
+			}, { $set: body });
 			return callback(null, updateRes);
 		} else {
 			return callback('Order not found in the database');
 		}
 	} catch(err) {
     	// console.log('modifyProduct ERR!! -> ', err);
-		if (res.headersSent)
-			return;
+		// if (res.headersSent)
+		// 	return;
     	return callback(err);
     }
 };
 
 const removeProduct = async (req, res, next) => {
 	const { item_id } = req.params;
-	const {models: {product: Product}} = COREAPP;
+	const { db } = COREAPP;
+	const products = db.collection('products');
+
 	try {
-		const productData = await Product.destroy({
-	        where: {
-	            id: item_id
-	        }
-	    });
+		const productData = await products.deleteOne({
+			_id: ObjectId(item_id)
+		});
 	    res.json({
         	success: true,
         	message: 'Product removed!',

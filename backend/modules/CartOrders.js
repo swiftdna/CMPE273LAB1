@@ -17,7 +17,7 @@ const getCartItems = (req, res, next) => {
 				console.log('data[x] ===> ', data[x]);
 				if (data[x].item_id) {
 					data[x].product = {};
-					const productsArr = products.filter(prod => prod.id === data[x].item_id);
+					const productsArr = products.filter(prod => prod._id.toString() === data[x].item_id);
 					console.log('productsArr > ', productsArr);
 					if (productsArr && productsArr.length) {
 						data[x].product = productsArr[0];

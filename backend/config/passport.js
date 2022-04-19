@@ -1,8 +1,10 @@
 const bCrypt = require('bcrypt-nodejs');
+const jwtSecret = require('./jwtConfig');
+const LocalStrategy = require('passport-local').Strategy;
+const JWTStrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
 
-module.exports = (passport, user) => {
-	const User = user;
-	const LocalStrategy = require('passport-local').Strategy;
+module.exports = (passport) => {
 
     passport.serializeUser(function(user, done) {
       done(null, user);
@@ -12,40 +14,37 @@ module.exports = (passport, user) => {
       done(null, user);
     });
 
+    //LOCAL SIGNUP
 	passport.use('local-signup', new LocalStrategy({
             usernameField: 'username',
             passwordField: 'password',
             passReqToCallback: true // allows us to pass back the entire request to the callback
-        }, (req, username, password, done) => {
+        }, async (req, username, password, done) => {
+            const collection = COREAPP.db.collection('users');
             const generateHash = function(password) {
                 return bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
             };
-            User.findOne({
-                where: {
-                    username: username
-                }
-            }).then(user => {
-                if (user) {
-                    return done({
-                        message: 'That username is already taken'
-                    }, false);
-                } else {
-                    const userPassword = generateHash(password);
-                    const data = {
-                        email: req.body.email,
-                        password: userPassword,
-                        username: username
-                    };
-                    User.create(data).then(function(newUser, created) {
-                        if (!newUser) {
-                            return done(null, false);
-                        }
-                        if (newUser) {
-                            return done(null, newUser);
-                        }
-                    });
-                }
+            const userObj = await collection.findOne({
+                username: username
             });
+            // console.log('userObj -> ', userObj);
+            if (userObj) {
+                return done({
+                    message: 'That username is already taken'
+                }, false);
+            } else {
+                const userPassword = generateHash(password);
+                const data = {
+                    email: req.body.email,
+                    password: userPassword,
+                    username: username
+                };
+                const newUser = await collection.insertOne(data);
+                if (newUser.acknowledged) {
+                    return done(null, newUser);
+                }
+                return done(null, false);
+            }
         }
     ));
 
@@ -56,16 +55,15 @@ module.exports = (passport, user) => {
             passwordField: 'password',
             passReqToCallback: true // allows us to pass back the entire request to the callback
         },
-        function(req, username, password, done) {
-            var User = user;
-            var isValidPassword = function(userpass, password) {
+        async (req, username, password, done) => {
+            const collection = COREAPP.db.collection('users');
+            const isValidPassword = function(userpass, password) {
                 return bCrypt.compareSync(password, userpass);
             }
-            User.findOne({
-                where: {
+            try {
+                const user = await collection.findOne({
                     username: username
-                }
-            }).then(function(user) {
+                });
                 if (!user) {
                     return done(null, false, {
                         message: 'username does not exist'
@@ -76,15 +74,40 @@ module.exports = (passport, user) => {
                         message: 'Incorrect password.'
                     });
                 }
-                const userinfo = user.get();
-                // console.log('got user info - ', userinfo);
-                return done(null, userinfo);
-            }).catch(function(err) {
+                return done(null, user);
+            } catch(e) {
                 console.log("Error:", err);
                 return done(null, false, {
                     message: 'Something went wrong with your Signin'
                 });
-            });
+            }
         }
     ));
+
+    const opts = {
+        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+        secretOrKey: jwtSecret.secret
+    };
+
+    // JWT Implementation
+    passport.use('jwt', new JWTStrategy(opts, async (jwt_payload, done) => {
+            const collection = COREAPP.db.collection('users');
+            try {
+                const user = await collection.findOne({
+                    username: jwt_payload.username
+                });
+                if (!user) {
+                    return done(null, false, {
+                        message: 'username does not exist'
+                    });
+                }
+                return done(null, user);
+            } catch(e) {
+                console.log("Error:", err);
+                return done(null, false, {
+                    message: 'Something went wrong with your Signin'
+                });
+            }
+        })
+    );
 }

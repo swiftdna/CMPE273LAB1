@@ -1,13 +1,15 @@
 const express = require('express');
+const passport = require('passport');
 const router = express.Router();
 const { getUserDetails, updateUserDetails} = require('./modules/UserProfile');
 const { getAllProducts, getProducts, getProduct, addProduct, modifyProduct, removeProduct } = require('./modules/Products');
 const { addFavourite, getAllFavourites, getFavourites, removeFavourite } = require('./modules/Favourites');
-const { addShop, getShop, updateShop, getShopByOwner, checkShopNameExists } = require('./modules/Shops');
+// const { addShop, getShop, updateShop, getShopByOwner, checkShopNameExists } = require('./modules/Shops');
+const { addShop, getShop, updateShop, checkShopNameExists, getShopByOwner } = require('./modules/Shops');
 const { addCategory, getAllCategories, getCategories, removeCategory } = require('./modules/Categories');
 const { getOrders, getOrder, getCartOrder, addOrder, removeOrder, modifyOrder } = require('./modules/Orders');
 const { getCartItems, addCartItem, modifyCartItem, deleteCartItem } = require('./modules/CartOrders');
-const countries = require('./data/countries.json');
+// const countries = require('./data/countries.json');
 
 router.get('/', isLoggedIn, (req, res) => {
 	res.json({success: true, message: 'Welcome to API page!'});
@@ -30,7 +32,7 @@ router.put('/products/:item_id', isLoggedIn, (req, res) => {
   });
 });
 router.post('/products', isLoggedIn, addProduct);
-router.delete('/products', isLoggedIn, removeProduct);
+router.delete('/products/:item_id', isLoggedIn, removeProduct);
 
 router.get('/favourites', getAllFavourites);
 router.get('/favourites/:user_id', isLoggedIn, getFavourites);
@@ -62,59 +64,59 @@ router.post('/cart/:cart_id', isLoggedIn, addCartItem);
 router.put('/cart/:order_dtl_id', isLoggedIn, modifyCartItem);
 router.delete('/cart/:cart_id', isLoggedIn, deleteCartItem);
 
-router.get('/countries', (req, res) => {
-  res.json({
-    success: true,
-    data: countries
-  });
-});
+// router.get('/countries', (req, res) => {
+//   res.json({
+//     success: true,
+//     data: countries
+//   });
+// });
 
-router.get('/favs', (req, res) => {
-  // const mysqlConnection = require('./config/mysql_native');
-  const mysql = require('mysql');
-  const dbConfig = require("./config/mysql");
-  const connection = mysql.createConnection({
-    host: dbConfig.HOST,
-    user: dbConfig.USER,
-    password: dbConfig.PASSWORD,
-    database: dbConfig.DB
-  });
+// router.get('/favs', (req, res) => {
+//   // const mysqlConnection = require('./config/mysql_native');
+//   const mysql = require('mysql');
+//   const dbConfig = require("./config/mysql");
+//   const connection = mysql.createConnection({
+//     host: dbConfig.HOST,
+//     user: dbConfig.USER,
+//     password: dbConfig.PASSWORD,
+//     database: dbConfig.DB
+//   });
 
-  connection.connect((err) => {
-    if (err) throw err;
-    console.log('Connected to MySQL Server!');
-    connection.query('SELECT * from favourites', (err, rows) => {
-      if(err) throw err;
-      // mysqlConnection.destroy();
-      res.json({success: true, data: rows});
-      connection.destroy();
-    });
-  });
-});
+//   connection.connect((err) => {
+//     if (err) throw err;
+//     console.log('Connected to MySQL Server!');
+//     connection.query('SELECT * from favourites', (err, rows) => {
+//       if(err) throw err;
+//       // mysqlConnection.destroy();
+//       res.json({success: true, data: rows});
+//       connection.destroy();
+//     });
+//   });
+// });
 
-router.get('/session', (req, res) => {
-  if (req.isAuthenticated && req.isAuthenticated() && req.session) {
-    const {passport: {user}} = req.session ? req.session : {};
-    console.log('req.session ->> ', req.session);
-    res.json({ success: true, isAuthenticated: true, user: {email: user.email, id: user.id, username: user.username} });
+router.get('/session', isLoggedIn, async (req, res, next) => {
+  if (req.user) {
+    const {user} = req;
+    res.json({ success: true, isAuthenticated: true, user: {email: user.email, id: user._id, username: user.username} });
   } else {
     res.status(401).json({message: "Not authorized", success: false});
   }
 });
 
-function isLoggedIn(req, res, next) {
-  // console.log('session -> ', req.session);
-  if (process.env.NODE_ENV === 'test') {
-    // for testing only
-    return next();
-  }
-  if (req.isAuthenticated && req.isAuthenticated()) {
-    // console.log('req.isAuthenticated() ----> ', req.isAuthenticated());
-    console.log(req.session.passport);
-    console.log(req.session.user);
-    return next();
-  }
-  res.status(401).json({message: "Not authorized to see this page. Please login!", status: 401});
+async function isLoggedIn(req, res, next) {
+  const {etsy_token} = req.cookies;
+  req.headers.authorization = `Bearer ${etsy_token}`;
+  return passport.authenticate('jwt', {session: false}, async (err, user) => {
+    if (process.env.NODE_ENV === 'test') {
+      // for testing only
+      return next();
+    }
+    if (user && user._id) {
+      req.user = user;
+      return next();
+    }
+    res.status(401).json({message: "Not authorized to see this page. Please login!", status: 401});
+  })(req, res, next);
 }
 
 module.exports = router;

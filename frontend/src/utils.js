@@ -60,8 +60,8 @@ export function fetchProfile(dispatch, userObj) {
 }
 
 export function updateProfile(dispatch, params, callback) {
-    if (params.id)
-        delete params.id;
+    if (params._id)
+        delete params._id;
     axios.put(`/api/users/profile`, params)
         .then(response => {
             const {data} = response;
@@ -118,7 +118,7 @@ export function getCartID(dispatch) {
             const {data} = response;
             if (data.success) {
                 dispatch(addCartID(data.data));
-                getCartItems(dispatch, data.data.id);
+                getCartItems(dispatch, data.data._id || data.data.insertedId);
             }
         });
 }
@@ -200,7 +200,7 @@ export function getShopDetails(dispatch) {
             // Get products of the shop
             const { data: shopResponseData } = response;
             const { data } = shopResponseData;
-            getShopProducts(dispatch, data.id);
+            getShopProducts(dispatch, data._id);
         });
 }
 
@@ -211,7 +211,7 @@ export function getShopDetailsByShopID(dispatch, shopID) {
             // Get products of the shop
             const { data: shopResponseData } = response;
             const { data } = shopResponseData;
-            getPublicShopProducts(dispatch, data.id);
+            getPublicShopProducts(dispatch, data._id);
         });
 }
 

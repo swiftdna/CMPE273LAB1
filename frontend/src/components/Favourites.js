@@ -33,7 +33,7 @@ export default function Favourites() {
     };
 
     const favs = pluck(favourites, 'item_id');
-    const updatedProds = products.filter(product => favs.indexOf(product.id) !== -1);
+    const updatedProds = products.filter(product => favs.indexOf(product._id) !== -1);
 
 	return (
 		<div className="container pull-down fill-page">

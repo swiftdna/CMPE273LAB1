@@ -14,11 +14,11 @@ function fetchCartItemsSuccess(data) {
 }
 
 export function addCartID(data) {
-   const {id} = data;
+   const {_id, insertedId} = data;
    console.log('data => ', data);
    return {
       type: ADD_CART_ID,
-      payload: id
+      payload: _id || insertedId
    }
 }
 

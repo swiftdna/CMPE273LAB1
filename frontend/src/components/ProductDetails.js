@@ -50,13 +50,13 @@ function ProductDetails() {
     const addToCart = () => {
         // pid, qty, price must be captured
         console.log('add to cart >>> ', productDetails);
-        const { id, price } = productDetails;
+        const { _id: id, price } = productDetails;
         const existingProdRecArr = cartDetails.filter(cartDet => cartDet.item_id === id);
         const existingProdRec = existingProdRecArr && existingProdRecArr.length ? existingProdRecArr[0] : {};
         const newQty = existingProdRec && existingProdRec.qty ? selectedQty + existingProdRec.qty : selectedQty;
         // Check if the item exists in cart
-        if (existingProdRec && existingProdRec.id) {
-            const cartItemId = existingProdRec.id;
+        if (existingProdRec && existingProdRec._id) {
+            const cartItemId = existingProdRec._id;
             updatedItemInCart(dispatch, cartItemId, { item_id: id, qty: newQty, price });
         } else {
             addItemToCart(dispatch, cartID, { item_id: id, qty: selectedQty, price });
@@ -86,9 +86,9 @@ function ProductDetails() {
                     </p> : '' }
                     <div style={{position: 'block', marginBottom: '13px'}}>
                         {
-                            productDetails.id && favs.indexOf(productDetails.id) !== -1 ?
-                            <FaHeart  className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={() => markUnFav(productDetails.id)} /> :
-                            <FaRegHeart className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={() => markFav(productDetails.id)} />
+                            productDetails._id && favs.indexOf(productDetails._id) !== -1 ?
+                            <FaHeart  className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={() => markUnFav(productDetails._id)} /> :
+                            <FaRegHeart className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={() => markFav(productDetails._id)} />
                         }
                     </div>
 

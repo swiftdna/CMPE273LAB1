@@ -1,70 +1,62 @@
-const Sequelize = require("sequelize");
+const {ObjectId} = require('mongodb');
 
 const getOrderDetails = async (req, res, next) => {
 	// console.log('req.session -> ', req.session);
 	const { order_id } = req.params;
-	const { models: { order_detail: OrderDetail } } = COREAPP;
+	const {db} = COREAPP;
+	const order_details = db.collection('order_details');
 	console.log('getOrderDetails -> order_id - ', order_id);
 	try {
-		const orderDetails = await OrderDetail.findAll({
-	        where: {
-	            order_id
-	        },
-	        raw: true
-	    });
+		const orderDetails = await order_details.find({
+	        order_id
+	    }).toArray();
     	console.log('orders -> ', orderDetails);
     	if (orderDetails) {
     		req.model.data = {
     			success: true,
     			data: orderDetails
     		};
-    	} else {
-    		res.json({
-    			success: true,
-    			data: [],
-    			message: 'OrderDetails not found!'
-    		});
+			return next();
     	}
-    	return next();
+		res.json({
+			success: true,
+			data: [],
+			message: 'OrderDetails not found!'
+		});
     } catch (err) {
     	console.log('getOrderDetails ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
 	    });
-		return next();
 	}
 };
 
 const getOrderDetailsWithOrders = async (req, res, next) => {
 	const { orders } = req.params;
-	const { models: { order_detail: OrderDetail } } = COREAPP;
-	const Op = Sequelize.Op;
+	const {db} = COREAPP;
+	const order_details = db.collection('order_details');
 
 	console.log('getOrderDetails -> orders - ', orders);
 	try {
-		const orderDetails = await OrderDetail.findAll({
-	        where: {
-	            order_id: {
-					[Op.in]: orders
-				}
-	        },
-	        raw: true
-	    });
+		const orderDetails = await order_details.find({
+			order_id: {
+				$in: orders
+			}
+	    }).toArray();
     	console.log('orderDetails -> ', orderDetails);
     	if (orderDetails) {
     		req.model.data = {
     			success: true,
     			data: orderDetails
     		};
-    	} else {
-    		res.json({
-    			success: true,
-    			data: [],
-    			message: 'OrderDetails not found!'
-    		});
-    	}
-    	return next();
+			return next();
+		}
+		res.json({
+			success: true,
+			data: [],
+			message: 'OrderDetails not found!'
+		});
     } catch (err) {
     	console.log('getOrderDetails ERR!! -> ', err);
     	res.json({
@@ -77,13 +69,12 @@ const getOrderDetailsWithOrders = async (req, res, next) => {
 
 const getOrderDetail = async (req, res, next) => {
 	const { id } = req.params;
-	const { models: { order_detail: OrderDetail } } = COREAPP;
+	const {db} = COREAPP;
+	const order_details = db.collection('order_details');
 	console.log('getOrderDetail -> id - ', id);
 	try {
-		const orderDetails = await OrderDetail.findOne({
-	        where: {
-	           id
-	        }
+		const orderDetails = await order_details.find({
+	        _id: ObjectId(id)
 	    });
     	// console.log('orderDetails -> ', orderDetails);
     	if (orderDetails) {
@@ -91,30 +82,29 @@ const getOrderDetail = async (req, res, next) => {
     			success: true,
     			data: orderDetails
     		});
-    	} else {
-    		res.json({
-    			success: true,
-    			data: {},
-    			message: 'OrderDetails not found!'
-    		});
+			return;
     	}
-    	return next();
+		res.json({
+			success: true,
+			data: {},
+			message: 'OrderDetails not found!'
+		});
     } catch (err) {
     	console.log('getOrderDetail ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
 	    });
-		return next();
 	}
 };
 
 const addOrderDetails = async (req, res, next) => {
 	const { body } = req;
-	const { models: { order_detail: OrderDetail } } = COREAPP;
+	const {db} = COREAPP;
+	const order_details = db.collection('order_details');
 	// Image upload to be handled
 	try {
-		const orderData = await OrderDetail.create(body);
+		const orderData = await order_details.insertOne(body);
 		if (!orderData) {
             return res.json({success: false, message: 'Unable to add order'});
         }
@@ -123,36 +113,34 @@ const addOrderDetails = async (req, res, next) => {
         	message: 'New item added to the order!',
         	data: orderData
         });
-        return next();
 	} catch(err) {
     	console.log('addOrderDetails ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
 	    });
-		return next();
     }
 };
 
 const modifyOrderDetails = async (req, res, next) => {
 	const { order_dtl_id } = req.params;
 	const { body } = req;
-	const { models: {order_detail: OrderDetail }} = COREAPP;
+	const {db} = COREAPP;
+	const order_details = db.collection('order_details');
 	// Image upload to be handled
 	// console.log('updateUserDetails -> user_id - ', user_id);
 	try {
-		const orderDtlData = await OrderDetail.findOne({
-			where: {
-				id: order_dtl_id
-			}
+		const orderDtlData = await order_details.findOne({
+			_id: ObjectId(order_dtl_id)
 		});
 		if (orderDtlData && orderDtlData.id) {
-			orderDtlData.update(body);
-				res.json({
-					success: true,
-					message: 'Update successful!'
-				});
-			return next();
+			await order_details.updateOne({
+				_id: ObjectId(order_dtl_id)
+			}, {$set: body});
+			res.json({
+				success: true,
+				message: 'Update successful!'
+			});
 		} else {
 			return res.json({success: false, message: 'Order Detail not found in the database'});
 		}
@@ -162,53 +150,50 @@ const modifyOrderDetails = async (req, res, next) => {
 			success: false,
 			message: err.message
 		});
-		return next();
 	}
 };
 
 const removeOrderDetails = async (req, res, next) => {
 	const { order_id } = req.params;
-	const { models: { order_detail: OrderDetail } } = COREAPP;
+	const {db} = COREAPP;
+	const order_details = db.collection('order_details');
 	try {
-		const orderData = await OrderDetail.destroy({
-	        where: {
-	            id: order_id
-	        }
+		const orderData = await order_details.remove({
+	        _id: ObjectId(order_id)
 	    });
 	    res.json({
         	success: true,
         	message: 'OrderDetails removed!',
         	data: orderData
         });
-        return next();
 	} catch(err) {
     	console.log('removeOrderDetails ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
 	    });
-		return next();
     }
 };
 
 const getSalesCountByItemID = async (itemIDs) => {
 	// attributes: ['itemId', [sequelize.fn('sum', sequelize.col('amount')), 'total']]
 	return new Promise(async (resolve, reject) => {
-		const { models: { order_detail: OrderDetail } } = COREAPP;
-		const Op = Sequelize.Op;
-
+		const {db} = COREAPP;
+		const order_details = db.collection('order_details');
 		console.log('getSalesCountByItemID -> itemIDs - ', itemIDs);
 		try {
-			const orderDetails = await OrderDetail.findAll({
-		        where: {
-		            item_id: {
-						[Op.in]: itemIDs
+			const orderDetails = await order_details.aggregate([
+				{
+				  $group:
+					{
+					  _id: "$item_id",
+					  sales: { 
+						  $sum: "$qty"
+					  }
 					}
-		        },
-		        attributes: ['item_id', [Sequelize.fn('sum', Sequelize.col('qty')), 'sales']],
-		        group : ['item_id'],
-		        raw: true
-		    });
+				}
+			  ]
+			).toArray();
 	    	console.log('salesCount -> ', orderDetails);
 	    	if (orderDetails) {
 	    		return resolve(orderDetails);
@@ -220,44 +205,44 @@ const getSalesCountByItemID = async (itemIDs) => {
 	    	return reject(err);
 		}
 	});
-}
+};
 
-const getOverallSalesCountByItemIDs = async (itemIDs) => {
-	// attributes: ['itemId', [sequelize.fn('sum', sequelize.col('amount')), 'total']]
-	return new Promise(async (resolve, reject) => {
-		const { models: { order_detail: OrderDetail } } = COREAPP;
-		const Op = Sequelize.Op;
+// const getOverallSalesCountByItemIDs = async (itemIDs) => {
+// 	// attributes: ['itemId', [sequelize.fn('sum', sequelize.col('amount')), 'total']]
+// 	return new Promise(async (resolve, reject) => {
+// 		const { models: { order_detail: OrderDetail } } = COREAPP;
+// 		const Op = Sequelize.Op;
 
-		console.log('getOverallSalesCountByItemIDs -> itemIDs - ', itemIDs);
-		try {
-			const salesData = await OrderDetail.findAll({
-		        where: {
-		            item_id: {
-						[Op.in]: itemIDs
-					}
-		        },
-		        attributes: [[Sequelize.fn('sum', Sequelize.col('qty')), 'sales']],
-		        raw: true
-		    });
-	    	console.log('salesCount -> ', salesData);
-	    	if (salesData) {
-	    		return resolve(salesData);
-	    	} else {
-	    		return resolve([]);
-	    	}
-	    } catch (err) {
-	    	console.log('getOverallSalesCountByItemIDs ERR!! -> ', err);
-	    	return reject(err);
-		}
-	});
-}
+// 		console.log('getOverallSalesCountByItemIDs -> itemIDs - ', itemIDs);
+// 		try {
+// 			const salesData = await OrderDetail.findAll({
+// 		        where: {
+// 		            item_id: {
+// 						[Op.in]: itemIDs
+// 					}
+// 		        },
+// 		        attributes: [[Sequelize.fn('sum', Sequelize.col('qty')), 'sales']],
+// 		        raw: true
+// 		    });
+// 	    	console.log('salesCount -> ', salesData);
+// 	    	if (salesData) {
+// 	    		return resolve(salesData);
+// 	    	} else {
+// 	    		return resolve([]);
+// 	    	}
+// 	    } catch (err) {
+// 	    	console.log('getOverallSalesCountByItemIDs ERR!! -> ', err);
+// 	    	return reject(err);
+// 		}
+// 	});
+// }
 
 module.exports = { 
 	getOrderDetails,
 	getOrderDetail,
 	addOrderDetails,
 	getSalesCountByItemID,
-	getOverallSalesCountByItemIDs,
+	// getOverallSalesCountByItemIDs,
 	modifyOrderDetails,
 	getOrderDetailsWithOrders,
 	removeOrderDetails

@@ -2,17 +2,22 @@ const express = require('express');
 const cors = require('cors');
 const passport = require('passport');
 const bodyParser = require('body-parser');
-const session = require('express-session')
+const session = require('express-session');
 const app = express();
 const routes = require('./routes');
 require('dotenv').config();
 const port = process.env.NODE_LOCAL_PORT || 4000;
+const connect = require('./config/connect');
+const jwtSecret = require('./config/jwtConfig');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 //For BodyParser
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
 app.use(cors());
 
@@ -23,24 +28,20 @@ app.use(session({
     saveUninitialized: true
 })); // session secret
 app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
+// app.use(passport.session()); // persistent login sessions
 
 app.use('/api', routes);
-const models = require("./models");
-//load passport strategies
-require('./config/passport.js')(passport, models.user);
-COREAPP = {
-  models
-};
-//Sync Database
-models.sequelize.sync().then(function() {
-    console.log('Nice! Database looks fine')
-}).catch(function(err) {
-    console.log(err, "Something went wrong with the Database Update!")
+COREAPP = {};
+connect().then(() => {
+  console.log('passport bootstrap!');
+  require('./config/passport.js')(passport);
 });
+// const models = require("./models");
+//load passport strategies
+//Sync Database
 
 app.post('/signin', (req, res, next) => {
-  passport.authenticate('local-signin', (err, user, info) => {
+  passport.authenticate('local-signin', {session: false}, (err, user, info) => {
     if (err) {
       console.log('err -> ', err);
       res.json({success: false, message: err});
@@ -52,7 +53,10 @@ app.post('/signin', (req, res, next) => {
     } else {
       req.login(user, error => {
         if (error) return next(error);
-        res.json({ info, success: true, isAuthenticated: true, user: {email: user.email, id: user.id, username: user.username} });
+        const userObj = {email: user.email, id: user._id, username: user.username};
+        const token = jwt.sign(userObj, jwtSecret.secret);
+        res.cookie('etsy_token', token, { httpOnly: true });
+        res.json({ info, success: true, isAuthenticated: true, user: userObj, token });
         return;
       });
     }
@@ -68,16 +72,17 @@ app.post('/signup', (req, res, next) => {
       next();
       return;
     }
-    res.json({ success: true, isAuthenticated: true, user: {email: user.email, id: user.id, username: user.username} });
+    res.json({ success: true, isAuthenticated: true, user: {email: user.email, id: user._id, username: user.username} });
     next();
   })(req, res, next);
 });
 
 app.post('/logout', (req, res) => {
-  req.logOut();
+  // req.logOut();
   req.session.destroy(()=>{
     // destroy session data
     req.session = null;
+    res.clearCookie("etsy_token");
     res.json({success: true});
   });
 });

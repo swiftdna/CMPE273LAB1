@@ -73,7 +73,7 @@ export default function Cart() {
 				{cartItems.map(item => 
 					<Row className="cart-item">
 						<Col xs={2}>
-							<Image src={item.product.photo_url} onClick={() => openProduct(item.product.id)} style={{objectFit: 'cover', cursor: 'pointer', width: '100px', height: '100px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
+							<Image src={item.product.photo_url} onClick={() => openProduct(item.product._id)} style={{objectFit: 'cover', cursor: 'pointer', width: '100px', height: '100px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
 						</Col>
 						<Col>
 							<p>{item.product.name}</p>

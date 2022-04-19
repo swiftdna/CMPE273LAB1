@@ -37,8 +37,8 @@ function Purchases() {
             }
             {
                 purchases && purchases.length ? purchases.map(purchase =>
-                        <ListGroup key={purchase.id} className="order_item">
-                          <ListGroup.Item className="order_item_heading">Date: {getDateText(purchase.createdAt)} <span className="total">Total: {currency}{purchase.total}</span> <span className="order_id">Order ID: {purchase.id}</span></ListGroup.Item>
+                        <ListGroup key={purchase._id} className="order_item">
+                          <ListGroup.Item className="order_item_heading">Date: {getDateText(purchase.createdAt)} <span className="total">Total: {currency}{purchase.total}</span> <span className="order_id">Order ID: {purchase._id}</span></ListGroup.Item>
                           {purchase.details && purchase.details.length ? <ListGroup.Item>
                                 <Row style={{textAlign: 'center', fontWeight: 'bold'}}>
                                     <Col xs={2}>
@@ -51,9 +51,9 @@ function Purchases() {
                             </ListGroup.Item> : ''
                           }
                           {purchase.details && purchase.details.map(dtl => 
-                            <ListGroup.Item key={dtl.id}>
+                            <ListGroup.Item key={dtl._id}>
                                 <Row style={{textAlign: 'center'}}>
-                                    <Col xs={2} onClick={() => openProduct(dtl.product.id)} style={{cursor: 'pointer'}}>
+                                    <Col xs={2} onClick={() => openProduct(dtl.product._id)} style={{cursor: 'pointer'}}>
                                         <Image src={dtl.product && dtl.product.photo_url} style={{objectFit: 'cover', width: '50px', height: '50px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
                                     </Col>
                                     <Col xs={6}>{dtl.product && dtl.product.name}</Col>

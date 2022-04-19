@@ -1,24 +1,20 @@
 const _ = require('underscore');
 const { getOrderDetailsWithOrders, getOrderDetails } = require('./OrderDetails');
 const { getProductByIDs, modifyProduct } = require('./Products');
+const {ObjectId} = require('mongodb');
 
 const getOrders = async (req, res, next) => {
 	// console.log('req.session -> ', req.session);
 	const { details } = req.query;
-	const { passport: {user: {id: user_id}} } = req.session;
-	const { models: { order: Order } } = COREAPP;
+	const { user: {_id: user_id} } = req;
+	const { db } = COREAPP;
+	const Order = db.collection('orders');
 	console.log('getOrders -> user_id - ', user_id);
 	try {
-		const orders = await Order.findAll({
-	        where: {
-	            user_id: user_id,
-				status: 'active',
-	        },
-	        order: [
-				['createdAt', 'DESC']
-			],
-			raw: true
-	    });
+		const orders = await Order.find({
+			user_id: user_id,
+			status: 'active'
+		}).sort({createdAt: 'desc'}).toArray();
     	console.log('orders -> ', orders);
     	if (orders) {
 			if (!details) {
@@ -28,7 +24,8 @@ const getOrders = async (req, res, next) => {
 				});
 			} else {
 				// Pull details
-				const ordersArr = _.pluck(orders, 'id');
+				let ordersArr = _.pluck(orders, '_id');
+				ordersArr = ordersArr.map(orderid => ObjectId(orderid).toString());
 				req.params.orders = ordersArr.slice();
 				req.model = {};
 				return getOrderDetailsWithOrders(req, res, () => {
@@ -40,9 +37,9 @@ const getOrders = async (req, res, next) => {
 						const {data: productDetails} = req.model;
 						// Arrange data for UI
 						orders.map(order => {
-							order.details = orderDetails.filter(ordDtl => ordDtl.order_id === order.id);
+							order.details = orderDetails.filter(ordDtl => ordDtl.order_id === ObjectId(order._id).toString());
 							order.details.map(dtl => {
-								const prodDetailsArr = productDetails.filter(prod => dtl.item_id === prod.id);
+								const prodDetailsArr = productDetails.filter(prod => dtl.item_id === ObjectId(prod._id).toString());
 								dtl.product = prodDetailsArr && prodDetailsArr.length ? prodDetailsArr[0] : {};
 							})
 						});
@@ -73,10 +70,11 @@ const getOrders = async (req, res, next) => {
 
 const addOrder = async (req, res, next) => {
 	const { body } = req;
-	const { models: { order: Order } } = COREAPP;
+	const {db} = COREAPP;
+	const orders = db.collection('orders');
 	// Image upload to be handled
 	try {
-		const orderData = await Order.create(body);
+		const orderData = await orders.insertOne(body);
 		if (!orderData) {
             return res.json({success: false, message: 'Unable to add order'});
         }
@@ -98,20 +96,20 @@ const addOrder = async (req, res, next) => {
 
 const getCartOrder = async (req, res, next) => {
 	// console.log('req.session -> ', req.session);
-	const { passport: {user: {id: user_id}} } = req.session;
-	const { models: { order: Order } } = COREAPP;
+	const { user: {_id: user_id} } = req;
+	const {db} = COREAPP;
+	const orders = db.collection('orders');
 	console.log('getOrders -> user_id - ', user_id);
 	try {
-		const orders = await Order.findAll({
-	        where: {
-	            user_id,
-	            status: 'draft'
-	        }
-	    });
-    	if (orders && orders.length) {
+		const ordersData = await orders.find({
+			user_id,
+			status: 'draft'
+	    }).toArray();
+		console.log('ordersData -> ', ordersData);
+    	if (ordersData && ordersData.length) {
     		res.json({
     			success: true,
-    			data: orders[0]
+    			data: ordersData[0]
     		});
     	} else {
     		// construct draft order for cart
@@ -135,13 +133,12 @@ const getCartOrder = async (req, res, next) => {
 
 const getOrder = async (req, res, next) => {
 	const { order_id } = req.params;
-	const {models: {order: Order}} = COREAPP;
+	const {db} = COREAPP;
+	const orders = db.collection('orders');
 	console.log('getOrder -> order_id - ', order_id);
 	try {
-		const order = await Order.findOne({
-	        where: {
-	            id: order_id
-	        }
+		const order = await orders.findOne({
+	        _id: ObjectId(order_id)
 	    });
     	console.log('order -> ', order);
     	if (order) {
@@ -163,25 +160,28 @@ const getOrder = async (req, res, next) => {
 	    	success: false,
 	    	message: err.message
 	    });
-		return next();
 	}
 };
 
 const modifyOrder = async (req, res, next) => {
 	const { order_id } = req.params;
 	const { body } = req;
-	const { models: {order: Order}} = COREAPP;
+	const { db } = COREAPP;
+	const Order = db.collection('orders');
+
 	// Image upload to be handled
 	// console.log('updateUserDetails -> user_id - ', user_id);
 	try {
 		const orderData = await Order.findOne({
-			where: {
-				id: order_id
-			}
+			_id: ObjectId(order_id)
 		});
-		if (orderData && orderData.id) {
+		if (orderData && orderData._id) {
 			// Get products in this order and 
-			orderData.update(body);
+			await Order.updateOne({
+				_id: ObjectId(order_id)
+			}, {
+				$set: body
+			});
 			req.model = {};
 
 			return getOrderDetails(req, res, () => {
@@ -193,16 +193,16 @@ const modifyOrder = async (req, res, next) => {
 					await Promise.all(
 						orderData.map(order => {
 							return new Promise((resolve, reject) => {
-								const filteredProductsArr = productData.filter(product => product.id === order.item_id);
+								const filteredProductsArr = productData.filter(product => ObjectId(product._id).toString() === order.item_id);
 								const [productObj] = filteredProductsArr && filteredProductsArr.length ? filteredProductsArr : [null];
-								const {id, qty} = productObj ? productObj : {};
+								const {_id, qty} = productObj ? productObj : {};
 								// construct modified qty
 								if (qty >= order.qty) {
 									// reduce it
 									productObj.qty = qty - order.qty;
 								}
-								delete productObj.id;
-								modifyProduct({ id, body: productObj}, (err, result) => {
+								delete productObj._id;
+								modifyProduct({ id: ObjectId(_id).toString(), body: productObj}, (err, result) => {
 									if (err)
 										reject(err);
 									resolve(result);
@@ -232,26 +232,23 @@ const modifyOrder = async (req, res, next) => {
 
 const removeOrder = async (req, res, next) => {
 	const { order_id } = req.params;
-	const { models: { order: Order } } = COREAPP;
+	const {db} = COREAPP;
+	const orders = db.collection('orders');
 	try {
-		const orderData = await Order.destroy({
-	        where: {
-	            id: order_id
-	        }
+		const orderData = await orders.remove({
+	        _id: ObjectId(order_id)
 	    });
 	    res.json({
         	success: true,
         	message: 'Order removed!',
         	data: orderData
         });
-        return next();
 	} catch(err) {
     	console.log('removeOrder ERR!! -> ', err);
     	res.json({
 	    	success: false,
 	    	message: err.message
 	    });
-		return next();
     }
 };
 

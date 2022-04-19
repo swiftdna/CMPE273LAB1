@@ -31,7 +31,7 @@ function Products({ data, loading, extras, fn, flags, disabled }) {
             }
             {
                 data && data.length ? 
-                data.map(product => <Card key={product.id} className="product-card" style={{ width: '18rem', cursor: 'pointer', flex: '1 0 21%', margin: '5px' }} onClick={() => fn && fn.openProduct(product.id)}>
+                data.map(product => <Card key={product._id} className="product-card" style={{ width: '18rem', cursor: 'pointer', flex: '1 0 21%', margin: '5px' }} onClick={() => fn && fn.openProduct(product._id)}>
                   <Card.Img style={{objectFit: 'cover', width: '300px', height: '200px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} variant="top" src={product.photo_url} />
                   <Card.Body>
                     <Card.Title>{product.name}
@@ -52,8 +52,8 @@ function Products({ data, loading, extras, fn, flags, disabled }) {
                         {!isDisabled('cart') ? <FaShoppingCart className="card-btn" style={{color: '#0070BA'}} title="Add to Cart" size="1.5em" onClick={(e) => processClicks(e, fn.dispatch, 'addToCart', {id: product, data: userObj})} /> : '' }
                         {!isDisabled('edit') ? <FaPencilAlt className="card-btn" style={{color: '#0070BA'}} title="Edit Product" size="1.5em" onClick={(e) => processClicks(e, fn.dispatch, 'editProduct', { id: product })} /> : '' }
                         {flags && flags.isLoggedIn && 
-                            (isFav(product.id) ? <FaHeart className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={(e) => processClicks(e, fn.dispatch, 'unfavourite', {id: product.id, data: userObj})} /> :
-                                <FaRegHeart className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={(e) => processClicks(e, fn.dispatch, 'favourite', {id: product.id, data: userObj})} />)}
+                            (isFav(product._id) ? <FaHeart className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={(e) => processClicks(e, fn.dispatch, 'unfavourite', {id: product._id, data: userObj})} /> :
+                                <FaRegHeart className="card-btn" style={{color: '#cc0000'}} title="Favourites" size="1.5em" onClick={(e) => processClicks(e, fn.dispatch, 'favourite', {id: product._id, data: userObj})} />)}
                     </div>
                   </Card.Body>
                 </Card>

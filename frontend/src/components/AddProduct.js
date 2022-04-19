@@ -52,7 +52,7 @@ function AddProduct({data, showFlag, fn, mode}) {
 
     const createProduct = () => {
         const productObj = {...productForm};
-        productObj.shop_id = data.id;
+        productObj.shop_id = data._id;
         addProduct(dispatch, productObj, (err, successFlag) => {
             if (successFlag) {
                 if (fn && fn.handleAddProductClose) {
@@ -113,7 +113,7 @@ function AddProduct({data, showFlag, fn, mode}) {
     }
 
     const createNewCategory = () => {
-        addNewCategory(dispatch, { shop_id: shopDetails.id, name: newCategory }, (err, successFlag) => {
+        addNewCategory(dispatch, { shop_id: shopDetails._id, name: newCategory }, (err, successFlag) => {
             if (successFlag) {
                 setShowNewCategory(false);
                 setNewCategory('');
@@ -165,7 +165,7 @@ function AddProduct({data, showFlag, fn, mode}) {
                             <Col xs={showNewCategory ? 12 : 9}>
                                 <Form.Select aria-label="Select category" id="category_id" value={productForm.category_id} onChange={onProductFormChange}>
                                     <option>Select One</option>
-                                    {categories && categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
+                                    {categories && categories.map(category => <option key={category._id} value={category._id}>{category.name}</option>)}
                                 </Form.Select>
                             </Col>
                             {!showNewCategory ? <Col xs={3}>

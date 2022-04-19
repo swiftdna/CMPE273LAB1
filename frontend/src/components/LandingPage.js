@@ -87,8 +87,8 @@ function LandingPage() {
         const existingProdRec = existingProdRecArr && existingProdRecArr.length ? existingProdRecArr[0] : {};
         const newQty = existingProdRec && existingProdRec.qty ? selectedQty + existingProdRec.qty : selectedQty;
         // Check if the item exists in cart
-        if (existingProdRec && existingProdRec.id) {
-            const cartItemId = existingProdRec.id;
+        if (existingProdRec && existingProdRec._id) {
+            const cartItemId = existingProdRec._id;
             updatedItemInCart(dispatch, cartItemId, { item_id: id, qty: newQty, price });
         } else {
             addItemToCart(dispatch, cartID, { item_id: id, qty: selectedQty, price });

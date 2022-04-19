@@ -1,7 +1,8 @@
 const getAllFavourites = async (req, res, next) => {
-	const {models: {favourite: Favourite}} = COREAPP;
+	const {db} = COREAPP;
+	const Favourite = db.collection('favourites');
 	try {
-		const favourites = await Favourite.findAll({});
+		const favourites = await Favourite.find({}).toArray();
     	console.log('favourites -> ', favourites);
     	if (favourites) {
     		res.json({
@@ -26,14 +27,13 @@ const getAllFavourites = async (req, res, next) => {
 
 const getFavourites = async (req, res, next) => {
 	const { user_id } = req.params;
-	const {models: {favourite: Favourite}} = COREAPP;
+	const {db} = COREAPP;
+	const Favourite = db.collection('favourites');
 	console.log('getFavourites -> user_id - ', user_id);
 	try {
-		const favourites = await Favourite.findAll({
-	        where: {
-	            user_id: user_id
-	        }
-	    });
+		const favourites = await Favourite.find({
+	        user_id: user_id
+	    }).toArray();
     	console.log('favourites -> ', favourites);
     	if (favourites) {
     		res.json({
@@ -60,10 +60,11 @@ const getFavourites = async (req, res, next) => {
 
 const addFavourite = async (req, res, next) => {
 	const { user_id, item_id } = req.params;
-	const {models: {favourite: Favourite}} = COREAPP;
+	const {db} = COREAPP;
+	const Favourite = db.collection('favourites');
 	console.log('user_id, item_id >>>> ', user_id, item_id);
 	try {
-		const favouriteData = await Favourite.create({ user_id, item_id });
+		const favouriteData = await Favourite.insertOne({ user_id, item_id });
 		if (!favouriteData) {
             return res.json({success: false, message: 'Unable to add favourite'});
         }
@@ -85,13 +86,12 @@ const addFavourite = async (req, res, next) => {
 
 const removeFavourite = async (req, res, next) => {
 	const { user_id, item_id } = req.params;
-	const { models: { favourite: Favourite } } = COREAPP;
+	const {db} = COREAPP;
+	const Favourite = db.collection('favourites');
 	try {
-		const favouriteData = await Favourite.destroy({
-	        where: {
-	            user_id,
-	            item_id
-	        }
+		const favouriteData = await Favourite.remove({
+			user_id,
+			item_id
 	    });
 	    res.json({
         	success: true,
