@@ -178,3 +178,52 @@
 .total_sales_count {
   margin-left: 10px;
 }
+
+.gift_item {
+  color: #0070BA;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline;
+}
+
+.gift_item > .icon{
+  margin-top: -10px;
+  font-size: 20px;
+  margin-left: 5px;
+}
+
+.gift_item > .ic_buttons {
+  font-size: 25px;
+  color:  #80b34b;
+}
+
+.gift_item > .ic_buttons:not(:last-child) {
+  margin-right: 10px;
+}
+
+.gift_item > .ic_buttons:hover {
+  color: #6fac30;
+}
+
+.purchases.gift_item {
+  display: block;
+  margin-top: 5px;
+}
+
+.delete_item {
+  cursor: pointer;
+  color: #D00000;
+  font-size: 12px;
+}
+
+.delete_item:hover {
+  text-decoration: underline;
+}
+
+.pagination {
+  margin-top: 10px;
+}
+
+.pagn_limit {
+  margin:  0;
+}

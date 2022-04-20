@@ -133,13 +133,14 @@ const modifyOrderDetails = async (req, res, next) => {
 		const orderDtlData = await order_details.findOne({
 			_id: ObjectId(order_dtl_id)
 		});
-		if (orderDtlData && orderDtlData.id) {
+		if (orderDtlData && orderDtlData._id) {
 			await order_details.updateOne({
 				_id: ObjectId(order_dtl_id)
 			}, {$set: body});
 			res.json({
 				success: true,
-				message: 'Update successful!'
+				message: 'Update successful!',
+				cartID: orderDtlData.order_id
 			});
 		} else {
 			return res.json({success: false, message: 'Order Detail not found in the database'});
@@ -154,12 +155,12 @@ const modifyOrderDetails = async (req, res, next) => {
 };
 
 const removeOrderDetails = async (req, res, next) => {
-	const { order_id } = req.params;
+	const { cart_item_id } = req.params;
 	const {db} = COREAPP;
 	const order_details = db.collection('order_details');
 	try {
 		const orderData = await order_details.remove({
-	        _id: ObjectId(order_id)
+	        _id: ObjectId(cart_item_id)
 	    });
 	    res.json({
         	success: true,

@@ -62,7 +62,8 @@ router.get('/cart/:cart_id', isLoggedIn, getCartItems, (req, res) => {
 });
 router.post('/cart/:cart_id', isLoggedIn, addCartItem);
 router.put('/cart/:order_dtl_id', isLoggedIn, modifyCartItem);
-router.delete('/cart/:cart_id', isLoggedIn, deleteCartItem);
+// router.delete('/cart/:cart_id', isLoggedIn, deleteCartItem);
+router.delete('/cart/item/:cart_item_id', isLoggedIn, deleteCartItem);
 
 // router.get('/countries', (req, res) => {
 //   res.json({

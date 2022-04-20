@@ -1,4 +1,4 @@
-const { getOrderDetails, addOrderDetails, modifyOrderDetails } = require('./OrderDetails');
+const { getOrderDetails, addOrderDetails, modifyOrderDetails, removeOrderDetails } = require('./OrderDetails');
 const { getProductByIDs } = require('./Products');
 const _ = require('underscore');
 
@@ -44,8 +44,8 @@ const modifyCartItem = (req, res, next) => {
 	return modifyOrderDetails(req, res, next);
 }
 
-const deleteCartItem = () => {
-
+const deleteCartItem = (req, res, next) => {
+	return removeOrderDetails(req, res, next);
 };
 
 module.exports = {

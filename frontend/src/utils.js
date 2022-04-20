@@ -143,6 +143,18 @@ export function addItemToCart(dispatch, id, data) {
         });
 }
 
+export function deleteItemInCart(dispatch, id, cartID) {
+    axios.delete(`/api/cart/item/${id}`)
+        .then(response => {
+            const {data} = response;
+            if (data.success) {
+                //Fetch cart items
+                dispatch(setToast({ type: 'success', message: 'Item removed from the cart!' }));
+                getCartItems(dispatch, cartID);
+            }
+        });
+}
+
 export function updatedItemInCart(dispatch, id, data) {
     axios.put(`/api/cart/${id}`, data)
         .then(response => {
@@ -150,7 +162,7 @@ export function updatedItemInCart(dispatch, id, data) {
             if (data.success) {
                 //Fetch cart items
                 dispatch(setToast({ type: 'success', message: 'Item updated in the cart!' }));
-                getCartItems(dispatch, id);
+                getCartItems(dispatch, data.cartID);
             }
         });
 }

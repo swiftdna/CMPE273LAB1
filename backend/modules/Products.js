@@ -94,10 +94,10 @@ const getProducts = async (req, res, next) => {
 			const productSalesData = await getSalesCountByItemID(productIDs);
 			const sales = {};
 			productSalesData.map(prodSales => {
-				sales[prodSales.item_id] = prodSales.sales;
+				sales[prodSales._id] = prodSales.sales;
 			});
 			const tempProds = products.map(prod => {
-				prod.salesCount = sales[prod.id];
+				prod.salesCount = sales[prod._id.toString()];
 				return prod;
 			});
 			if (internal) {
