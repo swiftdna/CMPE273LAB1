@@ -113,7 +113,7 @@ function Shop() {
 
     const submitShopChanges = () => {
         console.log('submit shop form -> ', shopForm);
-        const {id, name, image_url} = shopForm;
+        const {_id: id, name, image_url} = shopForm;
         modifyShop(dispatch, id, {name, image_url}, (err, success) => {
             if (success) {
                 handleClose();

@@ -222,6 +222,8 @@
 
 .pagination {
   margin-top: 10px;
+  left: 43%;
+  position: absolute;
 }
 
 .pagn_limit {

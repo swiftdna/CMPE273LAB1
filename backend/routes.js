@@ -4,12 +4,25 @@ const router = express.Router();
 const { getUserDetails, updateUserDetails} = require('./modules/UserProfile');
 const { getAllProducts, getProducts, getProduct, addProduct, modifyProduct, removeProduct } = require('./modules/Products');
 const { addFavourite, getAllFavourites, getFavourites, removeFavourite } = require('./modules/Favourites');
-// const { addShop, getShop, updateShop, getShopByOwner, checkShopNameExists } = require('./modules/Shops');
 const { addShop, getShop, updateShop, checkShopNameExists, getShopByOwner } = require('./modules/Shops');
 const { addCategory, getAllCategories, getCategories, removeCategory } = require('./modules/Categories');
 const { getOrders, getOrder, getCartOrder, addOrder, removeOrder, modifyOrder } = require('./modules/Orders');
 const { getCartItems, addCartItem, modifyCartItem, deleteCartItem } = require('./modules/CartOrders');
 // const countries = require('./data/countries.json');
+
+const kakfafy = (rid, req, res) => {
+  const kafka = require('./kafka/client');
+  const {user, params, query, body} = req;
+  const modifiedRequest = { rid, user, params, query, body };
+  return kafka.make_request('test', modifiedRequest, (err,results) => {
+    if (err){
+      console.log("Inside err");
+      res.json(err);
+    } else {
+      res.json(results);
+    }
+  });
+};
 
 router.get('/', isLoggedIn, (req, res) => {
 	res.json({success: true, message: 'Welcome to API page!'});
@@ -65,6 +78,104 @@ router.put('/cart/:order_dtl_id', isLoggedIn, modifyCartItem);
 // router.delete('/cart/:cart_id', isLoggedIn, deleteCartItem);
 router.delete('/cart/item/:cart_item_id', isLoggedIn, deleteCartItem);
 
+// Kafka routes
+router.get('/kf/users/:user_id', isLoggedIn, (req, res) => {
+  return kakfafy('getUserDetails', req, res);
+});
+router.put('/kf/users/profile', isLoggedIn, (req, res) => {
+  return kakfafy('updateUserDetails', req, res);
+});
+router.get('/kf/products',  (req, res) => {
+  return kakfafy('getAllProducts', req, res);
+});
+router.get('/kf/products/shop/:shop_id', (req, res) => {
+  return kakfafy('getProducts', req, res);
+});
+router.get('/kf/products/:item_id', (req, res) => {
+  return kakfafy('getProduct', req, res);
+});
+router.put('/kf/products/:item_id', isLoggedIn, (req, res) => {
+  return kakfafy('modifyProduct', req, res);
+});
+router.post('/kf/products', isLoggedIn, (req, res) => {
+  return kakfafy('addProduct', req, res);
+});
+router.delete('/kf/products/:item_id', isLoggedIn, (req, res) => {
+  return kakfafy('removeProduct', req, res);
+});
+router.get('/kf/favourites', (req, res) => {
+  return kakfafy('getAllFavourites', req, res);
+});
+router.get('/kf/favourites/:user_id', isLoggedIn, (req, res) => {
+  return kakfafy('getFavourites', req, res);
+});
+router.post('/kf/favourites/:user_id/:item_id', isLoggedIn, (req, res) => {
+  return kakfafy('addFavourite', req, res);
+});
+router.delete('/kf/favourites/:user_id/:item_id', isLoggedIn, (req, res) => {
+  return kakfafy('removeFavourite', req, res);
+});
+router.get('/kf/categories', isLoggedIn, (req, res) => {
+  return kakfafy('getAllCategories', req, res);
+});
+router.get('/kf/categories/:shop_id', isLoggedIn, (req, res) => {
+  return kakfafy('getCategories', req, res);
+});
+router.post('/kf/categories', isLoggedIn, (req, res) => {
+  return kakfafy('addCategory', req, res);
+});
+router.delete('/kf/categories/:category_id', isLoggedIn, (req, res) => {
+  return kakfafy('removeCategory', req, res);
+});
+
+router.get('/kf/shops', isLoggedIn, (req, res) => {
+  return kakfafy('getShopByOwner', req, res);
+});
+router.get('/kf/shops/:shop_id', isLoggedIn, (req, res) => {
+  return kakfafy('getShop', req, res);
+});
+router.get('/kf/shops/check/:shop_name', isLoggedIn, (req, res) => {
+  return kakfafy('checkShopNameExists', req, res);
+});
+router.post('/kf/shops', isLoggedIn, (req, res) => {
+  return kakfafy('addShop', req, res);
+});
+router.put('/kf/shops/:shop_id', isLoggedIn, (req, res) => {
+  return kakfafy('updateShop', req, res);
+});
+
+router.get('/kf/orders', isLoggedIn, (req, res) => {
+  return kakfafy('getOrders', req, res);
+});
+router.get('/kf/orders/:order_id', isLoggedIn, (req, res) => {
+  return kakfafy('getOrder', req, res);
+});
+router.put('/kf/orders/:order_id', isLoggedIn, (req, res) => {
+  return kakfafy('modifyOrder', req, res);
+});
+router.post('/kf/orders', isLoggedIn, (req, res) => {
+  return kakfafy('addOrder', req, res);
+});
+router.delete('/kf/orders/:order_id', isLoggedIn, (req, res) => {
+  return kakfafy('removeOrder', req, res);
+});
+
+router.get('/kf/order/cart', isLoggedIn, (req, res) => {
+  return kakfafy('getCartOrder', req, res);
+});
+router.get('/kf/cart/:cart_id', isLoggedIn, (req, res) => {
+  return kakfafy('getCartItems', req, res);
+});
+router.post('/kf/cart/:cart_id', isLoggedIn, (req, res) => {
+  return kakfafy('addCartItem', req, res);
+});
+router.put('/kf/cart/:order_dtl_id', isLoggedIn, (req, res) => {
+  return kakfafy('modifyCartItem', req, res);
+});
+// router.delete('/cart/:cart_id', isLoggedIn, deleteCartItem);
+router.delete('/kf/cart/item/:cart_item_id', isLoggedIn, (req, res) => {
+  return kakfafy('deleteCartItem', req, res);
+});
 // router.get('/countries', (req, res) => {
 //   res.json({
 //     success: true,

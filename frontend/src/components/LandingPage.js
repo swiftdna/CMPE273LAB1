@@ -132,71 +132,77 @@ function LandingPage() {
     
     return(
         <div className="container main-frame fill-page">
-            <Row style={{width: '100%'}}>
-                <Col xs={3}>
-                    <Slider
-                        rootStyle={sliderStyle}
-                        domain={[filterObj.startPrice, filterObj.endPrice]}
-                        step={1}
-                        mode={2}
-                        values={[filterObj.from, filterObj.to]}
-                        onChange={(e) => filterByPrice(e)}
-                      >
-                    <Rail>
-                      {({ getRailProps }) => (
-                        <div style={railStyle} {...getRailProps()} />
-                      )}
-                    </Rail>
-                    <Handles>
-                      {({ handles, getHandleProps }) => (
-                        <div className="slider-handles">
-                          {handles.map(handle => (
-                            <Handle
-                              key={handle.id}
-                              handle={handle}
-                              getHandleProps={getHandleProps}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </Handles>
-                    <Tracks right={false}>
-                      {({ tracks, getTrackProps }) => (
-                        <div className="slider-tracks">
-                          {tracks.map(({ id, source, target }) => (
-                            <Track
-                              key={id}
-                              source={source}
-                              target={target}
-                              getTrackProps={getTrackProps}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </Tracks>
-                  </Slider>
-                </Col>
-                <Col xs={6}>
-                    <p style={{color: '#808080', marginLeft: '50px', textAlign: 'center'}}>{products.length} products found</p>
-                </Col>
-                <Col xs={3} style={{marginLeft: 'auto', marginRight: '0'}}>
-                    <Form.Select aria-label="sorting" value={sortBy} onChange={onSelectChange}>
-                      <option value="">Select sorting</option>
-                      <option value="price">Price</option>
-                      <option value="qty">Quantity</option>
-                      <option value="sales">Sales Count</option>
-                    </Form.Select>
-                    <Form.Check 
-                        checked={oosFlag}
-                        type="switch"
-                        style={{ float: 'right', fontSize: '14px' }}
-                        id="out_of_stock"
-                        onChange={e => changeSwitch(e)}
-                        label="include out of stock items"
-                      />
-                </Col>
-            </Row>
-            <Products data={products} extras={{favs, userObj, currency}} loading={loading} flags={{isLoggedIn}} fn={{favourite, openProduct, unfavourite, dispatch, openShop, addToCart}} disabled={['edit']} />
+            {
+                products && products.length ?
+                <>
+                <Row style={{width: '100%'}}>
+                    <Col xs={3}>
+                        <Slider
+                            rootStyle={sliderStyle}
+                            domain={[filterObj.startPrice, filterObj.endPrice]}
+                            step={1}
+                            mode={2}
+                            values={[filterObj.from, filterObj.to]}
+                            onChange={(e) => filterByPrice(e)}
+                          >
+                        <Rail>
+                          {({ getRailProps }) => (
+                            <div style={railStyle} {...getRailProps()} />
+                          )}
+                        </Rail>
+                        <Handles>
+                          {({ handles, getHandleProps }) => (
+                            <div className="slider-handles">
+                              {handles.map(handle => (
+                                <Handle
+                                  key={handle.id}
+                                  handle={handle}
+                                  getHandleProps={getHandleProps}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </Handles>
+                        <Tracks right={false}>
+                          {({ tracks, getTrackProps }) => (
+                            <div className="slider-tracks">
+                              {tracks.map(({ id, source, target }) => (
+                                <Track
+                                  key={id}
+                                  source={source}
+                                  target={target}
+                                  getTrackProps={getTrackProps}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </Tracks>
+                      </Slider>
+                    </Col>
+                    <Col xs={6}>
+                        <p style={{color: '#808080', marginLeft: '50px', textAlign: 'center'}}>{products.length} products found</p>
+                    </Col>
+                    <Col xs={3} style={{marginLeft: 'auto', marginRight: '0'}}>
+                        <Form.Select aria-label="sorting" value={sortBy} onChange={onSelectChange}>
+                          <option value="">Select sorting</option>
+                          <option value="price">Price</option>
+                          <option value="qty">Quantity</option>
+                          <option value="sales">Sales Count</option>
+                        </Form.Select>
+                        <Form.Check 
+                            checked={oosFlag}
+                            type="switch"
+                            style={{ float: 'right', fontSize: '14px' }}
+                            id="out_of_stock"
+                            onChange={e => changeSwitch(e)}
+                            label="include out of stock items"
+                          />
+                    </Col>
+                </Row>
+                <Products data={products} extras={{favs, userObj, currency}} loading={loading} flags={{isLoggedIn}} fn={{favourite, openProduct, unfavourite, dispatch, openShop, addToCart}} disabled={['edit']} /> 
+                </>:
+                <p>No products found.</p>
+            }
         </div>
     )
 }

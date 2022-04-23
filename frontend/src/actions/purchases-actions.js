@@ -28,7 +28,7 @@ export function purchasesLoading() {
 export function handlePurchasesResponse(response) {
    const {data} = response;
    if (data.success) {
-      return fetchPurchasesSuccess(data.data);
+      return fetchPurchasesSuccess(data);
    } else {
       return fetchPurchasesFailure({
          message: data.message

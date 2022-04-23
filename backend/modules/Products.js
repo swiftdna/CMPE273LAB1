@@ -51,7 +51,7 @@ const getAllProducts = async (req, res, next) => {
 				const {data} = req.model;
 				const shopMap = {};
 				data.map(shop => {
-					shopMap[shop.id] = shop;
+					shopMap[shop._id] = shop;
 				})
 				const tempProds = productsData.map(prod => {
 					prod.shop_details = shopMap[prod.shop_id];

@@ -1,10 +1,12 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Spinner, Row, Col, ListGroup, Image } from 'react-bootstrap';
-import { selectLoading, selectPurchasesData } from '../selectors/purchasesSelector';
+import { Spinner, Row, Col, ListGroup, Image, Dropdown } from 'react-bootstrap';
+import { selectLoading, selectPurchasesData, selectPurchasesTotal } from '../selectors/purchasesSelector';
 import { selectCurrency } from '../selectors/appSelector';
 import { useNavigate } from 'react-router-dom';
 import { getPurchases } from '../utils';
+import { FaGift } from 'react-icons/fa';
+import ReactPaginate from 'react-paginate';
 import moment from 'moment';
 
 function Purchases() {
@@ -14,10 +16,16 @@ function Purchases() {
     const loading = useSelector(selectLoading);
     const purchases = useSelector(selectPurchasesData);
     const currency = useSelector(selectCurrency);
+    const purchasesTotal = useSelector(selectPurchasesTotal);
+    const [pageSize, setPageSize] = useState(5);
 
     useEffect(() => {
-        getPurchases(dispatch, { details: true });
+        getPurchases(dispatch, { details: true, limit: pageSize });
     }, []);
+
+    useEffect(() => {
+        getPurchases(dispatch, { details: true, limit: pageSize });
+    }, [pageSize]);
 
     const getDateText = (data) => {
         return moment(data).format('lll');
@@ -27,9 +35,34 @@ function Purchases() {
         navigate(`/product/${id}`);
     };
 
+    const handlePageClick = (event) => {
+        console.log('event.selected --->>> ', event.selected);
+        const newOffset = (event.selected * pageSize) % purchasesTotal;
+        console.log(
+          `User requested page number ${event.selected}, which is offset ${newOffset}`
+        );
+        // setItemOffset(newOffset);
+        getPurchases(dispatch, { details: true, limit: pageSize, skip: event.selected * pageSize });
+    };
+
     return(
         <div className="container pull-down fill-page">
-            <h5>Your Purchases</h5>
+            {
+                purchases && purchases.length ? 
+                    <Dropdown className="pull-right pagn_limit">
+                      <Dropdown.Toggle variant="success" id="dropdown-basic">
+                        Display {pageSize} purchases
+                      </Dropdown.Toggle>
+
+                      <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => setPageSize(2)}>2</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setPageSize(5)}>5</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setPageSize(10)}>10</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                : ''
+            }
+            <h5 style={{'marginBottom': '20px'}}>Your Purchases</h5>
             {
                 loading && <Spinner animation="border" role="status">
                   <span className="visually-hidden">Loading...</span>
@@ -56,7 +89,10 @@ function Purchases() {
                                     <Col xs={2} onClick={() => openProduct(dtl.product._id)} style={{cursor: 'pointer'}}>
                                         <Image src={dtl.product && dtl.product.photo_url} style={{objectFit: 'cover', width: '50px', height: '50px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
                                     </Col>
-                                    <Col xs={6}>{dtl.product && dtl.product.name}</Col>
+                                    <Col xs={6}>
+                                        {dtl.product && dtl.product.name}
+                                        {dtl.gift && dtl.gift_description ? <p className="purchases gift_item"><FaGift className="icon" /> {dtl.gift_description}</p> : ''}
+                                    </Col>
                                     <Col xs={2}>{dtl.qty}</Col>
                                     <Col xs={2}>{currency}{dtl.price * dtl.qty}</Col>
                                 </Row>
@@ -67,6 +103,25 @@ function Purchases() {
                     ) :
                     <p>No Purchases found</p>
             }
+            <ReactPaginate
+                breakLabel="..."
+                nextLabel="next >"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={5}
+                pageCount={purchasesTotal / pageSize}
+                previousLabel="< previous"
+                pageClassName="page-item"
+                pageLinkClassName="page-link"
+                previousClassName="page-item"
+                previousLinkClassName="page-link"
+                nextClassName="page-item"
+                nextLinkClassName="page-link"
+                breakClassName="page-item"
+                breakLinkClassName="page-link"
+                containerClassName="pagination"
+                activeClassName="active"
+                renderOnZeroPageCount={null}
+              />
         </div>
     )
 }

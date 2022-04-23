@@ -5,7 +5,7 @@ const {ObjectId} = require('mongodb');
 
 const getOrders = async (req, res, next) => {
 	// console.log('req.session -> ', req.session);
-	const { details } = req.query;
+	const { details, limit, skip } = req.query;
 	const { user: {_id: user_id} } = req;
 	const { db } = COREAPP;
 	const Order = db.collection('orders');
@@ -14,13 +14,22 @@ const getOrders = async (req, res, next) => {
 		const orders = await Order.find({
 			user_id: user_id,
 			status: 'active'
-		}).sort({createdAt: 'desc'}).toArray();
+		})
+		.sort({createdAt: 'desc'})
+		.skip(skip ? Number(skip) : 0)
+		.limit(limit ? Number(limit) : 0)
+		.toArray();
+		const totalOrdersCount = await Order.countDocuments({
+			user_id: user_id,
+			status: 'active'
+		});
     	console.log('orders -> ', orders);
     	if (orders) {
 			if (!details) {
 				res.json({
 					success: true,
-					data: orders
+					data: orders,
+					total: totalOrdersCount
 				});
 			} else {
 				// Pull details
@@ -45,7 +54,8 @@ const getOrders = async (req, res, next) => {
 						});
 						res.json({
 							success: true,
-							data: orders
+							data: orders,
+							total: totalOrdersCount
 						});
 					});
 				});

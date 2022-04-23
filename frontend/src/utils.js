@@ -13,7 +13,7 @@ import axios from 'axios';
 
 export function fetchProducts(dispatch, params = {}) {
     dispatch(productsLoading());
-    axios.get('/api/products', { params })
+    axios.get('/api/kf/products', { params })
         .then(response => {
             dispatch(handleProductsResponse(response));
         });
@@ -22,7 +22,7 @@ export function fetchProducts(dispatch, params = {}) {
 export function fetchFavourites (dispatch, userObj) {
     dispatch(favouritesLoading());
     const {id: userID} = userObj;
-    axios.get(`/api/favourites/${userID}`)
+    axios.get(`/api/kf/favourites/${userID}`)
         .then(response => {
             dispatch(handleFavouritesResponse(response));
         });
@@ -32,7 +32,7 @@ export function favourite(dispatch, id, userObj) {
     console.log('mark fav => ', id);
     dispatch(favouritesLoading());
     const {id: userID} = userObj;
-    axios.post(`/api/favourites/${userID}/${id}`)
+    axios.post(`/api/kf/favourites/${userID}/${id}`)
         .then(response => {
             console.log('fav response ', response);
             fetchFavourites(dispatch, userObj);
@@ -43,7 +43,7 @@ export function unfavourite(dispatch, id, userObj) {
     console.log('mark fav => ', id);
     dispatch(favouritesLoading());
     const {id: userID} = userObj;
-    axios.delete(`/api/favourites/${userID}/${id}`)
+    axios.delete(`/api/kf/favourites/${userID}/${id}`)
         .then(response => {
             console.log('fav response ', response);
             fetchFavourites(dispatch, userObj);
@@ -53,7 +53,7 @@ export function unfavourite(dispatch, id, userObj) {
 export function fetchProfile(dispatch, userObj) {
     const {id: userID} = userObj;
     dispatch(profileLoading());
-    axios.get(`/api/users/${userID}`)
+    axios.get(`/api/kf/users/${userID}`)
         .then(response => {
             dispatch(handleProfilesResponse(response));
         });
@@ -62,7 +62,7 @@ export function fetchProfile(dispatch, userObj) {
 export function updateProfile(dispatch, params, callback) {
     if (params._id)
         delete params._id;
-    axios.put(`/api/users/profile`, params)
+    axios.put(`/api/kf/users/profile`, params)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -79,7 +79,7 @@ export function updateProfile(dispatch, params, callback) {
 
 export function fetchProductDetails(dispatch, id) {
     dispatch(productDetailsLoading());
-    axios.get(`/api/products/${id}`)
+    axios.get(`/api/kf/products/${id}`)
         .then(response => {
             dispatch(handleProductDetailsResponse(response));
         });
@@ -113,7 +113,7 @@ export function checkSession(dispatch) {
 }
 
 export function getCartID(dispatch) {
-    axios.get('/api/order/cart')
+    axios.get('/api/kf/order/cart')
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -125,14 +125,14 @@ export function getCartID(dispatch) {
 
 export function getCartItems(dispatch, id) {
     // console.log(id);
-    axios.get(`/api/cart/${id}`)
+    axios.get(`/api/kf/cart/${id}`)
         .then(response => {
             dispatch(handleCartItemsResponse(response));
         });
 }
 
 export function addItemToCart(dispatch, id, data) {
-    axios.post(`/api/cart/${id}`, data)
+    axios.post(`/api/kf/cart/${id}`, data)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -144,7 +144,7 @@ export function addItemToCart(dispatch, id, data) {
 }
 
 export function deleteItemInCart(dispatch, id, cartID) {
-    axios.delete(`/api/cart/item/${id}`)
+    axios.delete(`/api/kf/cart/item/${id}`)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -156,7 +156,7 @@ export function deleteItemInCart(dispatch, id, cartID) {
 }
 
 export function updatedItemInCart(dispatch, id, data) {
-    axios.put(`/api/cart/${id}`, data)
+    axios.put(`/api/kf/cart/${id}`, data)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -168,7 +168,7 @@ export function updatedItemInCart(dispatch, id, data) {
 }
 
 export function createOrder(dispatch, id, data, callback) {
-    axios.put(`/api/orders/${id}`, data)
+    axios.put(`/api/kf/orders/${id}`, data)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -185,28 +185,28 @@ export function createOrder(dispatch, id, data, callback) {
 }
 
 export function getPurchases(dispatch, params = {}) {
-    axios.get(`/api/orders`, {params})
+    axios.get(`/api/kf/orders`, {params})
         .then(response => {
             dispatch(handlePurchasesResponse(response));
         });
 }
 
 export function getShopProducts(dispatch, shopID) {
-    axios.get(`/api/products/shop/${shopID}`)
+    axios.get(`/api/kf/products/shop/${shopID}`)
         .then(response => {
             dispatch(handleShopProductsResponse(response));
         });
 }
 
 export function getPublicShopProducts(dispatch, shopID) {
-    axios.get(`/api/products/shop/${shopID}`)
+    axios.get(`/api/kf/products/shop/${shopID}`)
         .then(response => {
             dispatch(handlePublicShopProductsResponse(response));
         });
 }
 
 export function getShopDetails(dispatch) {
-    axios.get(`/api/shops`)
+    axios.get(`/api/kf/shops`)
         .then(response => {
             dispatch(handleShopsResponse(response));
             // Get products of the shop
@@ -217,7 +217,7 @@ export function getShopDetails(dispatch) {
 }
 
 export function getShopDetailsByShopID(dispatch, shopID) {
-    axios.get(`/api/shops/${shopID}`)
+    axios.get(`/api/kf/shops/${shopID}`)
         .then(response => {
             dispatch(handlePublicShopsResponse(response));
             // Get products of the shop
@@ -228,7 +228,7 @@ export function getShopDetailsByShopID(dispatch, shopID) {
 }
 
 export function createShop(dispatch, data) {
-    axios.post(`/api/shops`, data)
+    axios.post(`/api/kf/shops`, data)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -242,7 +242,7 @@ export function createShop(dispatch, data) {
 }
 
 export function modifyShop(dispatch, id, data, callback) {
-    axios.put(`/api/shops/${id}`, data)
+    axios.put(`/api/kf/shops/${id}`, data)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -258,7 +258,7 @@ export function modifyShop(dispatch, id, data, callback) {
 }
 
 export function addProduct(dispatch, params, callback) {
-    axios.post(`/api/products`, params)
+    axios.post(`/api/kf/products`, params)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -274,9 +274,9 @@ export function addProduct(dispatch, params, callback) {
 }
 
 export function modifyProduct(dispatch, params, callback) {
-    const {id} = params;
+    const {_id: id} = params;
     delete params.id;
-    axios.put(`/api/products/${id}`, params)
+    axios.put(`/api/kf/products/${id}`, params)
         .then(response => {
             const {data} = response;
             if (data.success) {
@@ -304,21 +304,21 @@ export function uploadImageToCloud(dispatch, file) {
 }
 
 export function getCountries(dispatch) {
-    axios.get(`/api/countries`)
+    axios.get(`/api/kf/countries`)
         .then(response => {
             dispatch(handleCountriesResponse(response));
         });
 }
 
 export function getProductCategories(dispatch) {
-    axios.get(`/api/categories`)
+    axios.get(`/api/kf/categories`)
         .then(response => {
             dispatch(handleCategoryResponse(response));
         });
 }
 
 export function addNewCategory(dispatch, data, callback) {
-    axios.post(`/api/categories`, data)
+    axios.post(`/api/kf/categories`, data)
         .then(response => {
             const {data} = response;
             if (data.success) {
