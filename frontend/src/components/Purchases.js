@@ -108,7 +108,7 @@ function Purchases() {
                 nextLabel="next >"
                 onPageChange={handlePageClick}
                 pageRangeDisplayed={5}
-                pageCount={purchasesTotal / pageSize}
+                pageCount={Math.ceil(purchasesTotal / pageSize)}
                 previousLabel="< previous"
                 pageClassName="page-item"
                 pageLinkClassName="page-link"
