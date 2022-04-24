@@ -8,13 +8,13 @@ const { addShop, getShop, updateShop, checkShopNameExists, getShopByOwner } = re
 const { addCategory, getAllCategories, getCategories, removeCategory } = require('./modules/Categories');
 const { getOrders, getOrder, getCartOrder, addOrder, removeOrder, modifyOrder } = require('./modules/Orders');
 const { getCartItems, addCartItem, modifyCartItem, deleteCartItem } = require('./modules/CartOrders');
-// const countries = require('./data/countries.json');
+const countries = require('./data/countries.json');
 
 const kakfafy = (rid, req, res) => {
   const kafka = require('./kafka/client');
   const {user, params, query, body} = req;
   const modifiedRequest = { rid, user, params, query, body };
-  return kafka.make_request('test', modifiedRequest, (err,results) => {
+  return kafka.make_request('etsy_backend_processing', modifiedRequest, (err,results) => {
     if (err){
       console.log("Inside err");
       res.json(err);
@@ -176,12 +176,13 @@ router.put('/kf/cart/:order_dtl_id', isLoggedIn, (req, res) => {
 router.delete('/kf/cart/item/:cart_item_id', isLoggedIn, (req, res) => {
   return kakfafy('deleteCartItem', req, res);
 });
-// router.get('/countries', (req, res) => {
-//   res.json({
-//     success: true,
-//     data: countries
-//   });
-// });
+
+router.get('/countries', (req, res) => {
+  res.json({
+    success: true,
+    data: countries
+  });
+});
 
 // router.get('/favs', (req, res) => {
 //   // const mysqlConnection = require('./config/mysql_native');
