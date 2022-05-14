@@ -29,7 +29,7 @@ const getAllProducts = async (req, callback) => {
 			$gte: 1
 		};
 	}
-	console.log('conditions -> ', conditions, sortingObj);
+	// console.log('conditions -> ', conditions, sortingObj);
 	const { db } = COREAPP;
 	const products = db.collection('products');
 	try {
@@ -39,7 +39,7 @@ const getAllProducts = async (req, callback) => {
 			// get Shop details
 			const productIDs = _.unique(_.pluck(products, 'id'));
 			const productSalesData = await getSalesCountByItemID(productIDs);
-			console.log('productSalesData -> ', productSalesData);
+			// console.log('productSalesData -> ', productSalesData);
 			const sales = {};
 			productSalesData.map(prodSales => {
 				sales[prodSales._id] = prodSales.sales;
@@ -114,7 +114,7 @@ const getProducts = async (req, callback) => {
     		});
     	}
     } catch (err) {
-    	// console.log('getProducts ERR!! -> ', err);
+    	console.log('getProducts ERR!! -> ', err);
     	return callback(null, {
 	    	success: false,
 	    	message: err.message
@@ -213,7 +213,7 @@ const addProduct = async (req, callback) => {
 };
 
 const modifyProduct = async (params, callback) => {
-	console.log('modifyProduct called with - ', params);
+	// console.log('modifyProduct called with - ', params);
 	const { db } = COREAPP;
 	const product = db.collection('products');
 	let { item_id: id, body } = params;
@@ -234,7 +234,7 @@ const modifyProduct = async (params, callback) => {
 			const updateRes = await product.updateOne({
 				_id: ObjectId(id)
 			}, { $set: body });
-			console.log('success -> ', updateRes);
+			// console.log('success -> ', updateRes);
 			return callback(null, {
 				success: true,
 				data: updateRes
@@ -246,7 +246,7 @@ const modifyProduct = async (params, callback) => {
 			});
 		}
 	} catch(err) {
-    	// console.log('modifyProduct ERR!! -> ', err);
+    	console.log('modifyProduct ERR!! -> ', err);
 		// if (res.headersSent)
 		// 	return;
     	return callback({

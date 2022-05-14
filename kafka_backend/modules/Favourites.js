@@ -3,7 +3,7 @@ const getAllFavourites = async (req, callback) => {
 	const Favourite = db.collection('favourites');
 	try {
 		const favourites = await Favourite.find({}).toArray();
-    	console.log('favourites -> ', favourites);
+    	// console.log('favourites -> ', favourites);
     	if (favourites) {
     		return callback(null, {
     			success: true,
@@ -28,12 +28,12 @@ const getFavourites = async (req, callback) => {
 	const { user_id } = req.params;
 	const {db} = COREAPP;
 	const Favourite = db.collection('favourites');
-	console.log('getFavourites -> user_id - ', user_id);
+	// console.log('getFavourites -> user_id - ', user_id);
 	try {
 		const favourites = await Favourite.find({
 	        user_id: user_id
 	    }).toArray();
-    	console.log('favourites -> ', favourites);
+    	// console.log('favourites -> ', favourites);
     	if (favourites) {
     		return callback(null, {
     			success: true,
@@ -58,7 +58,7 @@ const addFavourite = async (req, callback) => {
 	const { user_id, item_id } = req.params;
 	const {db} = COREAPP;
 	const Favourite = db.collection('favourites');
-	console.log('user_id, item_id >>>> ', user_id, item_id);
+	// console.log('user_id, item_id >>>> ', user_id, item_id);
 	try {
 		const favouriteData = await Favourite.insertOne({ user_id, item_id, createdAt: +new Date, modifiedAt: +new Date });
 		if (!favouriteData) {

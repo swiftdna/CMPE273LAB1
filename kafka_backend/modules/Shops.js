@@ -2,12 +2,12 @@
 const {ObjectId} = require('mongodb');
 
 const getShopByOwner = async (req, callback) => {
-	console.log('req -> ', req.user);
+	// console.log('req -> ', req.user);
 	let { user: {_id: user_id} } = req;
 	const {db} = COREAPP;
 	const Shop = db.collection('shops');
 	user_id = user_id.toString();
-	console.log('getShop -> shop_id - ', user_id);
+	// console.log('getShop -> shop_id - ', user_id);
 	try {
 		const shop = await Shop.findOne({
 	        owner_id: user_id
@@ -18,7 +18,7 @@ const getShopByOwner = async (req, callback) => {
 			req.params.internal = true;
 			return getProducts(req, (err, productsData) => {
 				const {data} = productsData;
-				console.log('data ==> ', data);
+				// console.log('data ==> ', data);
 				const totalSales = data.reduce((total, item) => {
 					return total + (item.salesCount ? Number(item.salesCount) : 0);
 				}, 0);
@@ -47,7 +47,7 @@ const checkShopNameExists = async (req, callback) => {
 	const { shop_name } = req.params;
 	const { db } = COREAPP;
 	const shops = db.collection('shops');
-	console.log('getShop -> shop_id - ', shop_name);
+	// console.log('getShop -> shop_id - ', shop_name);
 	try {
 		const shop = await shops.findOne({
 			name: shop_name
@@ -82,7 +82,7 @@ const getShopByIDs = async (req, callback) => {
 	const { db } = COREAPP;
 	const shops = db.collection('shops');
 	shopIDs = shopIDs.map(shopID => ObjectId(shopID));
-	console.log('getShopByIDs -> shopIDs - ', shopIDs);
+	// console.log('getShopByIDs -> shopIDs - ', shopIDs);
 	try {
 		const shopsData = await shops.find({
 			_id: {
@@ -106,12 +106,12 @@ const getShop = async (req, callback) => {
 	const { shop_id } = req.params;
 	const {db} = COREAPP;
 	const Shop = db.collection('shops');
-	console.log('getShop -> shop_id - ', shop_id);
+	// console.log('getShop -> shop_id - ', shop_id);
 	try {
 		const shop = await Shop.findOne({
 	        _id: ObjectId(shop_id)
 	    });
-    	console.log('shop -> ', shop);
+    	// console.log('shop -> ', shop);
     	if (shop) {
 			const {getProducts} = require('./Products');
 			// Get shop total sales
@@ -178,7 +178,7 @@ const updateShop = async (req, callback) => {
 	const { body } = req;
 	const { db } = COREAPP;
 	const shops = db.collection('shops');
-	console.log('updateShop -> shop_id - ', shop_id);
+	// console.log('updateShop -> shop_id - ', shop_id);
 	try {
 		const shopData = await shops.findOne({
 			_id: ObjectId(shop_id)

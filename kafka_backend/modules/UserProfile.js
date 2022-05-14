@@ -4,7 +4,7 @@ const getUserDetails = async (req, callback) => {
 	const { user_id } = req.params;
 	const { db } = COREAPP;
 	const users = db.collection('users');
-	console.log('getUserDetails -> user_id - ', user_id);
+	// console.log('getUserDetails -> user_id - ', user_id);
 	try {
 		const user = await users.findOne({
 	    	_id: ObjectId(user_id)

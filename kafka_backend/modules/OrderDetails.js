@@ -5,12 +5,12 @@ const getOrderDetails = async (req, callback) => {
 	const { order_id } = req.params;
 	const {db} = COREAPP;
 	const order_details = db.collection('order_details');
-	console.log('getOrderDetails -> order_id - ', order_id);
+	// console.log('getOrderDetails -> order_id - ', order_id);
 	try {
 		const orderDetails = await order_details.find({
 	        order_id
 	    }).toArray();
-    	console.log('orders -> ', orderDetails);
+    	// console.log('orders -> ', orderDetails);
     	if (orderDetails) {
     		return callback(null, {
     			success: true,
@@ -36,14 +36,14 @@ const getOrderDetailsWithOrders = async (req, callback) => {
 	const {db} = COREAPP;
 	const order_details = db.collection('order_details');
 
-	console.log('getOrderDetails -> orders - ', orders);
+	// console.log('getOrderDetails -> orders - ', orders);
 	try {
 		const orderDetails = await order_details.find({
 			order_id: {
 				$in: orders
 			}
 	    }).toArray();
-    	console.log('orderDetails -> ', orderDetails);
+    	// console.log('orderDetails -> ', orderDetails);
     	if (orderDetails) {
     		return callback(null, {
     			success: true,
@@ -68,7 +68,7 @@ const getOrderDetail = async (req, callback) => {
 	const { id } = req.params;
 	const {db} = COREAPP;
 	const order_details = db.collection('order_details');
-	console.log('getOrderDetail -> id - ', id);
+	// console.log('getOrderDetail -> id - ', id);
 	try {
 		const orderDetails = await order_details.find({
 	        _id: ObjectId(id)
@@ -179,7 +179,7 @@ const getSalesCountByItemID = async (itemIDs) => {
 	return new Promise(async (resolve, reject) => {
 		const {db} = COREAPP;
 		const order_details = db.collection('order_details');
-		console.log('getSalesCountByItemID -> itemIDs - ', itemIDs);
+		// console.log('getSalesCountByItemID -> itemIDs - ', itemIDs);
 		try {
 			const orderDetails = await order_details.aggregate([
 				{
@@ -193,7 +193,7 @@ const getSalesCountByItemID = async (itemIDs) => {
 				}
 			  ]
 			).toArray();
-	    	console.log('salesCount -> ', orderDetails);
+	    	// console.log('salesCount -> ', orderDetails);
 	    	if (orderDetails) {
 	    		return resolve(orderDetails);
 	    	} else {

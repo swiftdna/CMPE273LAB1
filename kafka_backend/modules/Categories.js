@@ -2,14 +2,14 @@ const getCategories = async (req, callback) => {
 	const { shop_id } = req.params;
 	const { db } = COREAPP;
 	const Categories = db.collection('categories');
-	console.log('getCategories -> shop_id - ', shop_id);
+	// console.log('getCategories -> shop_id - ', shop_id);
 	try {
 		const categories = await Categories.find({
 			shop_id: {
 				$or: [null, shop_id]
 			}
 	    }).toArray();
-    	console.log('categories -> ', categories);
+    	// console.log('categories -> ', categories);
     	if (categories) {
     		return callback(null, {
     			success: true,
