@@ -8,6 +8,8 @@ const routes = require('./routes');
 require('dotenv').config();
 const port = process.env.NODE_LOCAL_PORT || 4000;
 const connect = require('./config/connect');
+// const graphql = require('./graphql');
+const graphqlController = require('./graphql/controller');
 const jwtSecret = require('./config/jwtConfig');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
@@ -29,6 +31,10 @@ app.use(session({
 })); // session secret
 app.use(passport.initialize());
 // app.use(passport.session()); // persistent login sessions
+
+// bootstrap graphql
+// graphql();
+app.use('/graphql', graphqlController);
 
 app.use('/api', routes);
 COREAPP = {};
