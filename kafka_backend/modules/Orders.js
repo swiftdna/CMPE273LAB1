@@ -66,7 +66,6 @@ const getOrders = async (req, callback) => {
     			message: 'Orders not found!'
     		});
     	}
-    	return next();
     } catch (err) {
     	console.log('getOrders ERR!! -> ', err);
     	return callback({

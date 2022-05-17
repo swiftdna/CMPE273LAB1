@@ -8,7 +8,7 @@ const {getSalesCountByItemID} = require('./OrderDetails');
 const getAllProducts = async (req, callback) => {
 	// console.log('getAllProducts >>>> called');
 	const { sortBy, Order, filter, from, to, type, value, enabled } = req.query;
-	const sortingObj = {};
+	let sortingObj = {};
 	const conditions = {};
 	if (sortBy) {
 		sortingObj = {

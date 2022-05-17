@@ -5,9 +5,12 @@ const getCategories = async (req, callback) => {
 	// console.log('getCategories -> shop_id - ', shop_id);
 	try {
 		const categories = await Categories.find({
-			shop_id: {
-				$or: [null, shop_id]
-			}
+			$or: [{
+				shop_id: null
+			},
+			{ 
+				shop_id
+			}]
 	    }).toArray();
     	// console.log('categories -> ', categories);
     	if (categories) {
