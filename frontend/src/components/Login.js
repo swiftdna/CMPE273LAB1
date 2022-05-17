@@ -3,7 +3,7 @@ import '../App.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { handleLoginResponse } from '../actions/app-actions';
+import { login } from '../utils';
 import { selectIsLoggedIn } from '../selectors/appSelector';
 
 //Define a Login Component
@@ -36,13 +36,7 @@ export function Login() {
             username,
             password
         };
-        //set the with credentials to true
-        // axios.defaults.withCredentials = true;
-        //make a post request with the user data
-        axios.post('/signin',data)
-            .then(response => {
-                dispatch(handleLoginResponse(response));
-            });
+        login(dispatch, data)
     }
 
     return (

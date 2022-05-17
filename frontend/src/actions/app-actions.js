@@ -40,6 +40,7 @@ function logoutFailure(data) {
 
 export function handleLoginResponse(response) {
    const {data} = response;
+   console.log('====> ', data);
    if (data.success) {
       return loginSuccess(data);
    } else {

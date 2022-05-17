@@ -81,7 +81,7 @@ function LandingPage() {
     }
 
     const addToCart = (dispatch, product, userObj) => {
-        const { id, price } = product;
+        const { _id: id, price } = product;
         const selectedQty = 1;
         const existingProdRecArr = cartDetails.filter(cartDet => cartDet.item_id === id);
         const existingProdRec = existingProdRecArr && existingProdRecArr.length ? existingProdRecArr[0] : {};

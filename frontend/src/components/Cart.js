@@ -63,7 +63,8 @@ export default function Cart() {
 		if (filteredArr && filteredArr.length) {
 			updatedItemInCart(dispatch, filteredArr[0]._id, {
 				gift: giftTracker[id],
-				gift_description: giftDescTracker[id]
+				gift_description: giftDescTracker[id],
+				cartID
 			});
 			setGiftTracker({...giftTracker, [id]: false});
 			setGiftDescTracker({...giftDescTracker, [id]: null});
@@ -94,7 +95,8 @@ export default function Cart() {
 		const increasedQty = Number(cartItem.qty) + 1;
         if (cartItem.qty < increasedQty) {
             updatedItemInCart(dispatch, cartItem._id, {
-				qty: increasedQty
+				qty: increasedQty,
+				cartID
 			});
         }
     };
@@ -107,7 +109,8 @@ export default function Cart() {
         const decreasedQty = Number(cartItem.qty) - 1;
         if (cartItem.qty > 1 && cartItem.qty > decreasedQty) {
             updatedItemInCart(dispatch, cartItem._id, {
-				qty: decreasedQty
+				qty: decreasedQty,
+				cartID
 			});
         }
     };
@@ -141,10 +144,10 @@ export default function Cart() {
 				{cartItems.map(item => 
 					<Row className="cart-item">
 						<Col xs={2}>
-							<Image src={item.product.photo_url} onClick={() => openProduct(item.product._id)} style={{objectFit: 'cover', cursor: 'pointer', width: '100px', height: '100px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} />
+							{item.product && item.product.photo_url ? <Image src={item.product.photo_url} onClick={() => openProduct(item.product._id)} style={{objectFit: 'cover', cursor: 'pointer', width: '100px', height: '100px', marginLeft: 'auto', marginRight: 'auto', display: 'block'}} /> : '' }
 						</Col>
 						<Col>
-							<p>{item.product.name}</p>
+							<p>{item.product && item.product.name ? item.product.name : 'Unknown'}</p>
 							<p className="gift_item">
 								{
 									item.gift ?
